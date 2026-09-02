@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver</title>
+</head>
+<body>
+    <div id="display"></div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const userid = "65ce4b3742fc2247b540b6b3"
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid
+            }
+        });
+
+        const map = new Map()
+
+        socket.on("newCommentInStream", (data) => {
+            map.set(data)
+            console.log(data)
+            updateDisplay()
+        })
+
+
+
+        const updateDisplay = () => {
+            const div = document.getElementById('display');
+            div.innerHTML = ''
+            map.forEach((value, key) => {
+
+                const entryDiv = document.createElement('div');
+                value = JSON.stringify(value)
+                entryDiv.textContent = `${value} --- End Of Message`;
+                div.appendChild(entryDiv);
+            });
+        }
+
+    </script>
+    
+</body>
+</html>

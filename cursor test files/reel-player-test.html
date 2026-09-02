@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frenzone Reel Player - Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #000;
+        }
+        
+        .container::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 0;
+            margin-bottom: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-group button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .reels-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .reel-item {
+            background: #000;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            transition: none;
+            max-height: 100vh;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        .reel-item:hover {
+            transform: none;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 25px;
+        }
+
+        .video-controls button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: transform 0.2s;
+        }
+
+        .video-controls button:hover {
+            transform: scale(1.2);
+        }
+
+        .reel-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
+            color: white;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .reel-info > * {
+            pointer-events: auto;
+        }
+
+        .reel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .username {
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .reel-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .reel-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .loading-spinner::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .location-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+        }
+
+        /* Intersection Observer loading indicator */
+        .scroll-trigger {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Frenzone Reel Player</h1>
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="useridInput" 
+                    placeholder="Enter User ID"
+                    value=""
+                >
+                <button id="loadBtn" onclick="loadReels()">Load Reels</button>
+            </div>
+            <div id="status" class="status" style="display: none;"></div>
+        </div>
+
+        <div id="reelsContainer" class="reels-container"></div>
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>No Reels Found</h2>
+            <p>Enter a User ID and click "Load Reels" to start</p>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://44.206.194.217:4000';
+        let currentPage = 1;
+        let isLoading = false;
+        let hasMore = true;
+        let currentUserid = '';
+        let loadedReels = [];
+        let observer = null;
+        let autoPlayObserver = null;
+        let infiniteScrollObserver = null;
+        let playingVideo = null;
+        let allVideos = new Map(); // Track all videos by reel ID
+        let videoLoadingQueue = new Set(); // Track videos currently being loaded
+        let videoMetadataCache = new Map(); // Cache video metadata
+        let preloadAdjacentVideos = true; // Preload adjacent videos
+
+        // Initialize
+        document.getElementById('useridInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadReels();
+            }
+        });
+        
+        // Optimize video loading on scroll
+        let lastScrollTime = Date.now();
+        let scrollTimeout = null;
+        
+        window.addEventListener('scroll', () => {
+            lastScrollTime = Date.now();
+            
+            // Clear existing timeout
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            
+            // After scroll stops, optimize loading for visible reels
+            scrollTimeout = setTimeout(() => {
+                const reelsContainer = document.getElementById('reelsContainer');
+                const reelItems = Array.from(reelsContainer.children);
+                
+                // Find currently visible reel
+                const viewportTop = window.scrollY;
+                const viewportBottom = viewportTop + window.innerHeight;
+                
+                reelItems.forEach((item, index) => {
+                    const rect = item.getBoundingClientRect();
+                    const itemTop = viewportTop + rect.top;
+                    const itemBottom = itemTop + rect.height;
+                    
+                    // If reel is in viewport
+                    if (itemBottom > viewportTop && itemTop < viewportBottom) {
+                        const reelId = item.dataset.reelId;
+                        const video = allVideos.get(reelId);
+                        if (video && video.readyState < 3) {
+                            // Boost loading priority for visible reels
+                            video.preload = 'auto';
+                            video.load();
+                        }
+                    }
+                });
+            }, 300); // Wait 300ms after scroll stops
+        }, { passive: true });
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        async function loadReels(reset = true) {
+            const useridInput = document.getElementById('useridInput');
+            const userid = useridInput.value.trim();
+
+            if (!userid) {
+                showStatus('Please enter a User ID', 'error');
+                return;
+            }
+
+            if (isLoading) return;
+
+            if (reset) {
+                currentPage = 1;
+                hasMore = true;
+                currentUserid = userid;
+                loadedReels = [];
+                document.getElementById('reelsContainer').innerHTML = '';
+                document.getElementById('emptyState').style.display = 'none';
+                
+                // Stop all videos and clear video map
+                stopAllVideos();
+                allVideos.clear();
+                playingVideo = null;
+                
+                // Disconnect all observers
+                if (autoPlayObserver) {
+                    autoPlayObserver.disconnect();
+                }
+                if (infiniteScrollObserver) {
+                    infiniteScrollObserver.disconnect();
+                }
+            }
+
+            if (!hasMore) return;
+
+            isLoading = true;
+            showStatus('Loading reels...', 'loading');
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            try {
+                // Always use 5 reels per page for consistent pagination
+                const perPage = 5;
+                
+                const response = await fetch(
+                    `${BASE_URL}/reels/getRecommendedReels/${userid}?type=foryou&pageNo=${currentPage}&perPage=${perPage}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.reels && data.reels.length > 0) {
+                    loadedReels = reset ? data.reels : [...loadedReels, ...data.reels];
+                    renderReels(reset);
+                    currentPage++;
+                    hasMore = data.reels.length >= perPage; // Continue if we got full batch or more
+                } else {
+                    hasMore = false;
+                    if (loadedReels.length === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                }
+
+                showStatus(`Loaded ${loadedReels.length} reels`, 'success');
+            } catch (error) {
+                console.error('Error loading reels:', error);
+                showStatus(`Error: ${error.message}`, 'error');
+                hasMore = false;
+            } finally {
+                isLoading = false;
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        function renderReels(reset = false) {
+            const container = document.getElementById('reelsContainer');
+            
+            if (reset) {
+                container.innerHTML = '';
+            }
+
+            // Get reels that haven't been rendered yet
+            const existingCount = container.children.length;
+            const newReels = loadedReels.slice(existingCount);
+
+            newReels.forEach((reel, index) => {
+                const reelElement = createReelElement(reel, existingCount + index);
+                container.appendChild(reelElement);
+            });
+
+            // Setup intersection observers for auto-play and infinite scroll
+            setupIntersectionObserver();
+            
+            // If this is the first batch, prioritize loading the first reel
+            if (reset && newReels.length > 0) {
+                const firstReelId = newReels[0]._id;
+                setTimeout(() => {
+                    const firstVideo = allVideos.get(firstReelId);
+                    if (firstVideo) {
+                        console.log(`⚡ Prioritizing first reel: ${firstReelId}`);
+                        firstVideo.preload = 'auto';
+                        firstVideo.load();
+                    }
+                }, 100);
+            }
+        }
+
+        function createReelElement(reel, index) {
+            const reelDiv = document.createElement('div');
+            reelDiv.className = 'reel-item';
+            reelDiv.dataset.reelId = reel._id;
+            reelDiv.dataset.index = index;
+
+            const videoUrl = `${BASE_URL}/reels/stream/${reel._id}`;
+            const profilePic = reel.profilePictureUrl || 'https://via.placeholder.com/40';
+            const username = reel.username || 'Unknown User';
+            const description = reel.description || '';
+            const likesCount = reel.likes ? reel.likes.length : 0;
+            const commentsCount = reel.comments ? reel.comments.length : 0;
+            const viewsCount = reel.viewedBy ? reel.viewedBy.length : 0;
+
+            reelDiv.innerHTML = `
+                <div class="video-container">
+                    <video 
+                        id="video-${reel._id}"
+                        preload="auto"
+                        playsinline
+                        webkit-playsinline
+                        controls
+                        crossorigin="anonymous"
+                        style="width: 100%; height: 100%;"
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="video-controls">
+                        <button onclick="togglePlay('${reel._id}')" id="playBtn-${reel._id}">▶️</button>
+                        <button onclick="toggleMute('${reel._id}')" id="muteBtn-${reel._id}">🔊</button>
+                    </div>
+                    <div id="loading-${reel._id}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px;">Loading video...</div>
+                    <div id="error-${reel._id}" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 14px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;"></div>
+                    <div class="reel-info">
+                        <div class="reel-header">
+                            <img src="${profilePic}" alt="${username}" class="profile-pic" onerror="this.src='https://via.placeholder.com/40'">
+                            <div class="user-info">
+                                <span class="username">
+                                    ${username}
+                                    ${reel.isVerified ? '<span class="verified-badge" title="Verified">✓</span>' : ''}
+                                </span>
+                            </div>
+                        </div>
+                        ${description ? `<div class="reel-description">${escapeHtml(description)}</div>` : ''}
+                        ${reel.location ? `<span class="location-badge">📍 ${escapeHtml(reel.location)}</span>` : ''}
+                        <div class="reel-stats">
+                            <div class="stat-item">❤️ ${likesCount}</div>
+                            <div class="stat-item">💬 ${commentsCount}</div>
+                            <div class="stat-item">👁️ ${viewsCount}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Setup video with authentication and proper streaming
+            const video = reelDiv.querySelector(`#video-${reel._id}`);
+            const loadingEl = reelDiv.querySelector(`#loading-${reel._id}`);
+            const errorEl = reelDiv.querySelector(`#error-${reel._id}`);
+            
+            // Don't load videos immediately - wait until they become visible for faster initial page load
+            // setupVideoStreaming will be called when video comes into view
+            setupVideoListeners(video, reel._id);
+
+            return reelDiv;
+        }
+
+        async function setupVideoStreaming(video, reelId, videoUrl, loadingEl, errorEl, priority = 'normal') {
+            // Use passed elements or try to find them as fallback
+            if (!loadingEl) {
+                loadingEl = document.getElementById(`loading-${reelId}`);
+            }
+            if (!errorEl) {
+                errorEl = document.getElementById(`error-${reelId}`);
+            }
+            
+            // Check if already loading
+            if (videoLoadingQueue.has(reelId)) {
+                console.log(`Video ${reelId} already loading, skipping...`);
+                return;
+            }
+            
+            videoLoadingQueue.add(reelId);
+            
+            try {
+                const token = getAuthToken();
+                
+                if (priority === 'high') {
+                    console.log(`⚡ High priority: Setting up video streaming for reel ${reelId}...`);
+                } else {
+                    console.log(`📥 Setting up video streaming for reel ${reelId}... (${priority})`);
+                }
+                
+                // Prepare headers with authentication
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                if (loadingEl && priority === 'high') {
+                    loadingEl.textContent = 'Loading video...';
+                }
+                
+                // Fetch full video with authentication
+                // For fastest start, fetch full video but browser will start playing as data arrives
+                console.log(`Fetching video stream for reel ${reelId}...`);
+                
+                const videoResponse = await fetch(videoUrl, {
+                    headers: headers
+                });
+                
+                if (!videoResponse.ok) {
+                    throw new Error(`HTTP ${videoResponse.status}: ${videoResponse.statusText}`);
+                }
+                
+                console.log(`Video stream response received. Content-Type: ${videoResponse.headers.get('Content-Type')}`);
+                
+                // Create blob from response - browser will start playing as data streams in
+                const blob = await videoResponse.blob();
+                console.log(`Video blob created. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+                
+                // Create object URL from blob
+                const blobUrl = URL.createObjectURL(blob);
+                console.log(`Blob URL created for ${reelId}`);
+                
+                // Set video source to blob URL
+                video.src = blobUrl;
+                
+                // Set video attributes
+                video.crossOrigin = 'anonymous';
+                video.preload = priority === 'high' ? 'auto' : 'metadata';
+                video.playsInline = true;
+                
+                // Wait for video to load enough metadata to start playing
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Video load timeout (15s)'));
+                    }, 15000);
+                    
+                    const cleanup = () => {
+                        clearTimeout(timeout);
+                        videoLoadingQueue.delete(reelId);
+                    };
+                    
+                    // Load metadata first
+                    video.addEventListener('loadedmetadata', () => {
+                        console.log(`✓ Video ${reelId} metadata loaded - Duration: ${video.duration}s`);
+                        if (priority === 'high' && loadingEl) {
+                            loadingEl.textContent = 'Ready to play';
+                        }
+                        
+                        // For high priority, wait for enough data to play
+                        if (priority === 'high') {
+                            video.addEventListener('canplay', () => {
+                                cleanup();
+                                console.log(`✓ Video ${reelId} ready to play`);
+                                if (loadingEl) {
+                                    loadingEl.style.display = 'none';
+                                }
+                                // Cache metadata
+                                videoMetadataCache.set(reelId, {
+                                    duration: video.duration,
+                                    width: video.videoWidth,
+                                    height: video.videoHeight,
+                                    timestamp: Date.now()
+                                });
+                                resolve();
+                            }, { once: true });
+                        } else {
+                            cleanup();
+                            if (loadingEl) {
+                                loadingEl.style.display = 'none';
+                            }
+                            resolve();
+                        }
+                    }, { once: true });
+                    
+                    video.addEventListener('error', () => {
+                        cleanup();
+                        const error = video.error;
+                        console.error(`✗ Video ${reelId} error:`, error);
+                        const errorMsg = error 
+                            ? `Error code ${error.code}: ${getVideoError(error.code)}` 
+                            : 'Unknown video error';
+                        reject(new Error(errorMsg));
+                    }, { once: true });
+                    
+                    video.load();
+                });
+                
+            } catch (error) {
+                console.error(`Failed to setup video ${reelId}:`, error);
+                videoLoadingQueue.delete(reelId);
+                
+                if (loadingEl) {
+                    loadingEl.style.display = 'none';
+                }
+                if (errorEl) {
+                    errorEl.style.display = 'block';
+                    errorEl.innerHTML = `
+                        <div style="font-weight: bold; margin-bottom: 5px;">⚠️ Video Load Failed</div>
+                        <div style="font-size: 12px; margin-bottom: 3px;">${error.message}</div>
+                    `;
+                }
+            }
+        }
+
+        // Progressive chunk loading for remaining video data
+        async function loadVideoRemainingChunks(videoUrl, headers, startByte, totalSize, video, reelId, initialBlobUrl, isHighPriority) {
+            try {
+                // Load remaining chunks in the background
+                // Start loading from where initial chunk ended
+                const chunkSize = 3 * 1024 * 1024; // 3MB chunks for remaining data
+                let currentByte = startByte;
+                
+                const loadNextChunk = async () => {
+                    if (currentByte >= totalSize) {
+                        console.log(`✓ All chunks loaded for reel ${reelId}`);
+                        return;
+                    }
+                    
+                    // Calculate chunk end
+                    const endByte = Math.min(currentByte + chunkSize - 1, totalSize - 1);
+                    
+                    try {
+                        const chunkResponse = await fetch(videoUrl, {
+                            headers: {
+                                ...headers,
+                                'Range': `bytes=${currentByte}-${endByte}`
+                            }
+                        });
+                        
+                        if (chunkResponse.ok || chunkResponse.status === 206) {
+                            const chunkBlob = await chunkResponse.blob();
+                            console.log(`Loaded chunk ${currentByte}-${endByte} (${(chunkBlob.size / 1024 / 1024).toFixed(2)}MB) for reel ${reelId}`);
+                            
+                            // Move to next chunk
+                            currentByte = endByte + 1;
+                            
+                            // Continue loading next chunk after a short delay
+                            if (currentByte < totalSize) {
+                                setTimeout(loadNextChunk, 100); // Small delay to not overwhelm
+                            }
+                        }
+                    } catch (error) {
+                        console.log(`Error loading chunk for ${reelId}:`, error);
+                        // Continue anyway - video can still play from what we have
+                    }
+                };
+                
+                // Start loading remaining chunks after initial playback
+                if (isHighPriority) {
+                    // For high priority, start loading immediately
+                    setTimeout(loadNextChunk, 500);
+                } else {
+                    // For normal priority, wait a bit longer
+                    setTimeout(loadNextChunk, 2000);
+                }
+            } catch (error) {
+                console.log(`Background chunk loading failed for ${reelId}:`, error);
+            }
+        }
+
+        function getVideoError(code) {
+            const errors = {
+                1: 'MEDIA_ERR_ABORTED - The user aborted loading',
+                2: 'MEDIA_ERR_NETWORK - Network error occurred',
+                3: 'MEDIA_ERR_DECODE - Decoding error occurred',
+                4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Source not supported'
+            };
+            return errors[code] || 'Unknown error';
+        }
+
+        function stopAllVideos(exceptVideo = null) {
+            // Stop all videos except the one specified
+            allVideos.forEach((v, reelId) => {
+                if (v !== exceptVideo && v && !v.paused) {
+                    v.pause();
+                    const playBtn = document.getElementById(`playBtn-${reelId}`);
+                    if (playBtn) {
+                        playBtn.textContent = '▶️';
+                    }
+                }
+            });
+        }
+
+        function setupVideoListeners(video, reelId) {
+            // Store video in map
+            allVideos.set(reelId, video);
+            
+            // Set video to loop
+            video.loop = true;
+            video.muted = true; // Start muted for auto-play
+            
+            video.addEventListener('play', () => {
+                // Stop all other videos when this one plays
+                stopAllVideos(video);
+                playingVideo = video;
+                const playBtn = document.getElementById(`playBtn-${reelId}`);
+                if (playBtn) {
+                    playBtn.textContent = '⏸️';
+                }
+                const errorEl = document.getElementById(`error-${reelId}`);
+                if (errorEl) {
+                    errorEl.style.display = 'none';
+                }
+            });
+
+            video.addEventListener('pause', () => {
+                if (playingVideo === video) {
+                    playingVideo = null;
+                }
+                const playBtn = document.getElementById(`playBtn-${reelId}`);
+                if (playBtn) {
+                    playBtn.textContent = '▶️';
+                }
+            });
+            
+            video.addEventListener('ended', () => {
+                // Restart video when it ends (loop)
+                video.currentTime = 0;
+                video.play().catch(e => console.log('Auto-play after loop prevented:', e));
+            });
+
+            video.addEventListener('loadedmetadata', () => {
+                console.log(`Video ${reelId} metadata loaded - Duration: ${video.duration}s`);
+            });
+
+            video.addEventListener('loadeddata', () => {
+                console.log(`Video ${reelId} data loaded`);
+            });
+
+            video.addEventListener('canplay', () => {
+                console.log(`Video ${reelId} can start playing`);
+                const loadingEl = document.getElementById(`loading-${reelId}`);
+                if (loadingEl) {
+                    loadingEl.style.display = 'none';
+                }
+            });
+            
+            video.addEventListener('canplaythrough', () => {
+                console.log(`Video ${reelId} can play through`);
+                const loadingEl = document.getElementById(`loading-${reelId}`);
+                if (loadingEl) {
+                    loadingEl.style.display = 'none';
+                }
+            });
+
+            video.addEventListener('waiting', () => {
+                console.log(`Video ${reelId} is buffering`);
+            });
+
+            video.addEventListener('playing', () => {
+                console.log(`Video ${reelId} is now playing`);
+                // Ensure loading indicator is hidden when video starts playing
+                const loadingEl = document.getElementById(`loading-${reelId}`);
+                if (loadingEl) {
+                    loadingEl.style.display = 'none';
+                }
+            });
+
+            video.addEventListener('error', (e) => {
+                console.error(`Error loading video ${reelId}:`, video.error);
+                const errorEl = document.getElementById(`error-${reelId}`);
+                if (errorEl) {
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = `Error: ${getVideoError(video.error?.code || 4)}`;
+                }
+                showStatus(`Error loading video: ${reelId}`, 'error');
+            });
+
+            video.addEventListener('stalled', () => {
+                console.warn(`Video ${reelId} stalled`);
+            });
+
+            video.addEventListener('suspend', () => {
+                console.log(`Video ${reelId} loading suspended`);
+            });
+        }
+
+        function togglePlay(reelId) {
+            const video = allVideos.get(reelId);
+            if (!video) return;
+            
+            if (video.paused) {
+                // Stop all other videos and play this one
+                stopAllVideos(video);
+                video.play().catch(e => console.log('Play prevented:', e));
+            } else {
+                video.pause();
+            }
+        }
+
+        function toggleMute(reelId) {
+            const video = allVideos.get(reelId);
+            if (!video) return;
+            video.muted = !video.muted;
+            const muteBtn = document.getElementById(`muteBtn-${reelId}`);
+            if (muteBtn) {
+                muteBtn.textContent = video.muted ? '🔇' : '🔊';
+            }
+        }
+
+        function preloadAdjacentReels(currentIndex) {
+            if (!preloadAdjacentVideos) return;
+            
+            const reelsContainer = document.getElementById('reelsContainer');
+            const reelItems = Array.from(reelsContainer.children);
+            
+            // Preload next reel (1 ahead)
+            if (currentIndex + 1 < reelItems.length) {
+                const nextReel = reelItems[currentIndex + 1];
+                const nextReelId = nextReel.dataset.reelId;
+                const nextVideo = allVideos.get(nextReelId);
+                if (nextVideo && nextVideo.readyState < 2) {
+                    console.log(`📥 Preloading next reel: ${nextReelId}`);
+                    nextVideo.preload = 'metadata';
+                    nextVideo.load();
+                }
+            }
+            
+            // Preload previous reel (1 behind)
+            if (currentIndex - 1 >= 0) {
+                const prevReel = reelItems[currentIndex - 1];
+                const prevReelId = prevReel.dataset.reelId;
+                const prevVideo = allVideos.get(prevReelId);
+                if (prevVideo && prevVideo.readyState < 2) {
+                    console.log(`📥 Preloading previous reel: ${prevReelId}`);
+                    prevVideo.preload = 'metadata';
+                    prevVideo.load();
+                }
+            }
+        }
+
+        function setupAutoPlayObserver() {
+            // Cleanup previous observer
+            if (autoPlayObserver) {
+                autoPlayObserver.disconnect();
+            }
+
+            // Auto-play video when it enters viewport
+            autoPlayObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const reelItem = entry.target;
+                    const reelId = reelItem.dataset.reelId;
+                    const reelIndex = parseInt(reelItem.dataset.index) || 0;
+                    const video = allVideos.get(reelId);
+                    
+                    if (!video) return;
+                    
+                    if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                        // Video is mostly visible - prioritize and play it
+                        console.log(`🎯 Reel ${reelId} is now visible (${entry.intersectionRatio.toFixed(2)} visible)`);
+                        
+                        // Get loading element
+                        const loadingEl = document.getElementById(`loading-${reelId}`);
+                        
+                        // Upgrade video loading priority and fetch if not already loaded
+                        if (!video.src || video.src === '' || video.readyState < 2) {
+                            // Fetch video with high priority
+                            const videoUrl = `${BASE_URL}/reels/stream/${reelId}`;
+                            const errorEl = document.getElementById(`error-${reelId}`);
+                            
+                            // Fetch and set up video
+                            setupVideoStreaming(video, reelId, videoUrl, loadingEl, errorEl, 'high')
+                                .then(() => {
+                                    console.log(`✓ Video ${reelId} loaded and ready`);
+                                    // Try to play after loading
+                                    playVideoWhenReady(video, reelId, loadingEl);
+                                })
+                                .catch(err => {
+                                    console.error(`Failed to load video ${reelId}:`, err);
+                                });
+                        } else {
+                            // Video already has src - always try to resume/play it when visible
+                            if (video.paused || video.ended) {
+                                // Video was paused (likely from scrolling away), resume it immediately
+                                console.log(`▶️ Resuming paused/ended video ${reelId}`);
+                            }
+                            // Always try to play/resume when video comes into view
+                            playVideoWhenReady(video, reelId, loadingEl);
+                        }
+                        
+                        // Preload adjacent reels in background
+                        preloadAdjacentReels(reelIndex);
+                        
+                        // Stop all other videos
+                        stopAllVideos(video);
+                        
+                        // Helper function to play video when ready
+                        function playVideoWhenReady(video, reelId, loadingEl) {
+                            // Hide loading indicator if video has metadata
+                            if (video.readyState >= 2 && loadingEl) {
+                                loadingEl.style.display = 'none';
+                            }
+                            
+                            // Always try to play/resume when video comes into view
+                            if (video.paused || video.ended) {
+                                // Resume paused video or restart ended video
+                                if (video.readyState >= 3) {
+                                    // Video has enough data, play immediately
+                                    video.play().then(() => {
+                                        console.log(`✓ Video ${reelId} resumed/started playing`);
+                                        if (loadingEl) {
+                                            loadingEl.style.display = 'none';
+                                        }
+                                    }).catch(e => {
+                                        console.log(`Auto-play prevented for reel ${reelId}, will retry...`, e);
+                                        // Retry after a short delay
+                                        setTimeout(() => {
+                                            if (video.paused || video.ended) {
+                                                video.play().catch(() => {});
+                                            }
+                                        }, 500);
+                                    });
+                                } else if (video.readyState >= 2) {
+                                    // Video has metadata, wait for more data
+                                    const tryPlayWhenReady = () => {
+                                        if (loadingEl) {
+                                            loadingEl.style.display = 'none';
+                                        }
+                                        video.play().then(() => {
+                                            console.log(`✓ Video ${reelId} resumed after loading`);
+                                        }).catch(() => {});
+                                    };
+                                    const canPlayHandler = () => {
+                                        tryPlayWhenReady();
+                                        video.removeEventListener('canplay', canPlayHandler);
+                                        video.removeEventListener('canplaythrough', canPlayHandler);
+                                    };
+                                    video.addEventListener('canplay', canPlayHandler, { once: true });
+                                    video.addEventListener('canplaythrough', canPlayHandler, { once: true });
+                                } else {
+                                    // No metadata yet, wait for it
+                                    video.addEventListener('loadedmetadata', () => {
+                                        if (video.paused || video.ended) {
+                                            video.play().catch(() => {});
+                                        }
+                                        if (loadingEl) {
+                                            loadingEl.style.display = 'none';
+                                        }
+                                    }, { once: true });
+                                }
+                            } else if (!video.paused) {
+                                // Video is already playing, just ensure loading is hidden
+                                if (loadingEl) {
+                                    loadingEl.style.display = 'none';
+                                }
+                            }
+                            
+                            // Always hide loading if video is ready
+                            if (video.readyState >= 2 && loadingEl) {
+                                loadingEl.style.display = 'none';
+                            }
+                        }
+                        
+                    } else if (!entry.isIntersecting || entry.intersectionRatio < 0.3) {
+                        // Video is not visible or barely visible - pause it
+                        if (video === playingVideo && !video.paused) {
+                            video.pause();
+                            console.log(`⏸️ Paused video ${reelId} (scrolled out of view)`);
+                        }
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px',
+                threshold: [0, 0.3, 0.5, 0.7, 1.0] // Multiple thresholds for smoother transitions
+            });
+
+            // Observe all reel items
+            const reelsContainer = document.getElementById('reelsContainer');
+            const reelItems = reelsContainer.children;
+            for (let item of reelItems) {
+                autoPlayObserver.observe(item);
+            }
+        }
+
+        function setupInfiniteScrollObserver() {
+            // Cleanup previous observer
+            if (infiniteScrollObserver) {
+                infiniteScrollObserver.disconnect();
+            }
+
+            const options = {
+                root: null,
+                rootMargin: '200px', // Start loading earlier (200px before visible)
+                threshold: 0.1
+            };
+
+            infiniteScrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && hasMore && !isLoading) {
+                        console.log('3rd last reel approaching - loading next page...');
+                        loadReels(false);
+                    }
+                });
+            }, options);
+
+            // Observe the 3rd last reel item
+            const reelsContainer = document.getElementById('reelsContainer');
+            const reelItems = reelsContainer.children;
+            if (reelItems.length >= 3) {
+                // Observe the 3rd last item
+                const thirdLastIndex = reelItems.length - 3;
+                infiniteScrollObserver.observe(reelItems[thirdLastIndex]);
+                console.log(`👀 Observing 3rd last reel (index ${thirdLastIndex}) for infinite scroll`);
+            }
+        }
+        
+        function setupIntersectionObserver() {
+            setupAutoPlayObserver();
+            setupInfiniteScrollObserver();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getAuthToken() {
+            // Try to get token from localStorage or prompt user
+            let token = localStorage.getItem('authToken');
+            if (!token) {
+                token = prompt('Please enter your auth token (or leave empty to try without):');
+                if (token) {
+                    localStorage.setItem('authToken', token);
+                }
+            }
+            return token || '';
+        }
+
+    </script>
+</body>
+</html>
+

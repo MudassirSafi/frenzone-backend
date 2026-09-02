@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver</title>
+</head>
+
+<body>
+    <div id="display"></div>
+    <button id="seen">see last message</button>
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const senderid = "68693aa8ef84c5b75346bf68"
+        const receiverid = "66def677b0ad05e79a72dd6a" 
+        const socket = io("http://44.206.194.217:4000", {  // 44.206.194.217
+            auth: {
+                userid: senderid
+            }
+        });
+        var seen = {
+            userid: senderid,
+            senderid: ""
+        }
+
+        const map = new Map()
+
+        socket.on("newMessage", (data) => {
+            console.log("newMessage: ", data);
+            map.set(data._id,data)
+            seen.senderid = data.senderid;
+        })
+
+        socket.on("unreadActivitiesCount", (data) => {
+            console.log("unreadActivitiesCount: ", data);
+        })
+
+        socket.on("messageDeleted", (data) => {
+            console.log("messageDeleted: ", data);
+        })
+
+        var seenButton = document.getElementById("seen")
+        seenButton.addEventListener("click", (e)=>{
+            socket.emit("seeMessage", seen);
+        })
+        
+
+        socket.on("newMessageInClub", (data) => {
+            console.log("newMessageInClub: ", data);
+        })
+
+        
+        socket.on("newMediaInClub", (data) => {
+            console.log("newMediaInClub: ", data);
+        })
+        
+        
+        </script>
+</body>
+
+</html>

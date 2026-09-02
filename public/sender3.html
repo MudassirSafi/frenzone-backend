@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender1</title>
+</head>
+
+<body>
+    <input type="text" id="message" placeholder="Enter Text" />
+    <button id="sendBtn">Send</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+                const sentBtn = document.getElementById("sendBtn")
+        const messageInput = document.getElementById("message")
+        const senderid = "65ce4b0f42fc2247b540b6a7"
+        const receiverid = "65ce4b3742fc2247b540b6b3"
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        socket.on("connect",()=>{
+            console.log("Connected To Server")
+        })
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from WebSocket server");
+        });
+
+        socket.on("error", (error) => {
+            console.error("WebSocket error:", error);
+        });
+
+        sendBtn.addEventListener("click", (e) => {
+            const message = messageInput.value;
+            socket.emit("sendMessage", { senderid, receiverid, message });
+        })
+
+    </script>
+</body>
+
+</html>

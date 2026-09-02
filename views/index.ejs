@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Coins</title>
+  <div id="description">
+  </div><br>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      /* Ensures the body covers the entire viewport height */
+      margin: 0;
+      /* Remove default margin */
+    }
+  </style>
+  <script src="https://www.paypal.com/sdk/js?client-id=<%= paypalClientId %>"></script>
+  <script defer>
+    let res
+    const storeItems = new Map([
+      [1, { price: 0.7, name: "50 Frenzone coins", amount: 50 }],
+      [2, { price: 1.29, name: "100 Frenzone coins", amount: 100 }],
+      [3, { price: 6.45, name: "500 Frenzone coins", amount: 500 }],
+      [4, { price: 25.8, name: "1000 Frenzone coins", amount: 1000 }],
+      [5, { price: 51.6, name: "4000 Frenzone coins", amount: 4000 }],
+      [6, { price: 64.5, name: "5000 Frenzone coins", amount: 5000 }],
+      [7, { price: 258, name: "20000 Frenzone coins", amount: 20000 }],
+      [8, { price: 451.5, name: "35000 Frenzone coins", amount: 35000 }],
+      [9, { price: 645, name: "50000 Frenzone coins", amount: 50000 }],
+    ])
+    let productid = '<%= productid %>'
+    let userid = '<%= userid %>'
+    productid = parseInt(productid, 10)
+    let desc = document.getElementById("description")
+    desc.textContent = "Product: " + storeItems.get(productid).name + " Price: " + storeItems.get(productid).price + "USD"
+    paypal
+      .Buttons({
+        createOrder: function () {
+          return fetch("/wallet/createOrder", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userid,
+              item: {
+                id: productid,
+              },
+            }),
+          })
+            .then(res => {
+              if (res.ok) return res.json()
+              return res.json().then(json => Promise.reject(json))
+            })
+            .then(({ id }) => {
+              return id
+            })
+            .catch(e => {
+              setTimeout(() => {
+                  alert(e.error)
+                }, 1000);
+              console.error(e.error)
+            })
+        },
+        onApprove: function (data, actions) {
+          return actions.order.capture().then(function (details) {
+            // Make a fetch request to your API endpoint
+            return fetch("/wallet/addCoins", {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userid,
+                amount:storeItems.get(productid).amount
+              }),
+            })
+              .then(response => response.json())
+              .then(data => {
+                setTimeout(() => {
+                  alert(data.message)
+                }, 1000);
+                console.log(data)
+              })
+              .catch(error => {
+                setTimeout(() => {
+                  alert(data.error)
+                }, 1000);
+                console.error(error)
+              });
+          });
+        },
+      }).render("#paypal");
+  </script>
+</head>
+
+<body>
+  <div id="paypal"></div>
+</body>
+
+</html>

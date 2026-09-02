@@ -1,0 +1,2 @@
+GET {{baseUrl}}/post/getAllposts/{{userid}}/2/2
+Authorization: Bearer {{token}}

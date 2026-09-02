@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver</title>
+</head>
+
+<body>
+    <div id="display"></div>
+    <input type="text" id="userid">
+    <button id="seen">connect socket</button>
+    <div id="status">Disconnected</div>
+    
+    <div id="data"></div>
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        var userid = ""
+        var socketUrl = "http://44.206.194.217:4000"
+        var map = new Map()
+        var subscribeSockets = ["newUserJoined", "memberCount", "threadUpdate", "userMute", "newBroadcasterRequest", "acceptedBroadcasterRequest", "rejectedBroadcasterRequest", "newModerator", "removedModerator", "newBlockInStream", "newUnblockInStream", "streamActionReceive", "streamended"];
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector("#userid").focus()
+            document.querySelector("#userid").value = "tes"
+            alert('sdjf')
+        })
+
+        document.querySelector("#seen").addEventListener("click", (e)=>{
+            var input = document.querySelector("#userid")
+            if(input.value == userid){
+                return;
+            }
+            userid = input.value;
+
+            if(userid.trim() != ""){
+                const socket = io(socketUrl, {
+                    auth: {
+                        userid
+                    }
+                });
+            }
+            
+            subscribeSockets.map(socketName => {
+                socket.on(socketName, (data) => {
+                    console.log(`${socketName}: `, data);
+                    document.querySelector("#data").innerHTML +=
+                    `
+                    <h2>${socketName}</h2>
+                    <code>
+                        ${data}
+                    </code>
+                    `
+                })
+            })
+
+            document.querySelector("#status").innerHTML = "Connected"
+        })      
+    </script>
+</body>
+
+</html>

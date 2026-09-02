@@ -1,0 +1,5 @@
+GET {{baseUrl}}/user/getAllUsers
+Authorization: Bearer {{token}}
+
+###
+

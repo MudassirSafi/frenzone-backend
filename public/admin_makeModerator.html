@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Admin side</title>
+</head>
+<body>
+  <button moderator="664f3b1eb5cba769fd3f2e0a">Make Moderator</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const userid = "664f3a75b5cba769fd3f2df2"
+        const streamid = "66507eaf01e5935980b2a81b";
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: userid
+            }
+        });
+
+        var button = document.querySelector("button");
+        button.addEventListener("click", e=>{
+          var moderatorid = button.getAttribute("moderator");
+          var data = {
+            streamid,
+            userid: moderatorid
+          }
+          socket.emit("makeModeratorInStream", data)
+        })
+
+    </script>
+</body>
+</html>

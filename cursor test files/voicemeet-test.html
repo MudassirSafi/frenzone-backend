@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frenzone VoiceMeet & Space-X Voice Chat - Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .user-section {
+            margin-bottom: 20px;
+        }
+
+        .user-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.connected {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+
+        .status-indicator.disconnected {
+            background: #f44336;
+        }
+
+        .content-area {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .api-section {
+            margin-bottom: 30px;
+        }
+
+        .api-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .api-card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #333;
+            transition: border-color 0.3s;
+        }
+
+        .api-card:hover {
+            border-color: #667eea;
+        }
+
+        .api-card h4 {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .api-card .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .method.post {
+            background: #4caf50;
+            color: white;
+        }
+
+        .method.get {
+            background: #2196f3;
+            color: white;
+        }
+
+        .method.patch {
+            background: #ff9800;
+            color: white;
+        }
+
+        .method.delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .api-card button {
+            width: 100%;
+            padding: 8px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .api-card button:hover {
+            background: #5568d3;
+        }
+
+        .log-area {
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #333;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+            background: #1a1a1a;
+        }
+
+        .log-entry.success {
+            border-left-color: #4caf50;
+        }
+
+        .log-entry.error {
+            border-left-color: #f44336;
+        }
+
+        .log-entry.info {
+            border-left-color: #2196f3;
+        }
+
+        .log-entry.socket {
+            border-left-color: #ff9800;
+        }
+
+        .log-time {
+            color: #666;
+            font-size: 10px;
+            margin-right: 10px;
+        }
+
+        .log-message {
+            color: #e0e0e0;
+        }
+
+        .log-data {
+            margin-top: 5px;
+            padding: 8px;
+            background: #0a0a0a;
+            border-radius: 4px;
+            color: #999;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .clear-log {
+            margin-bottom: 10px;
+        }
+
+        .multi-user-controls {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .multi-user-controls h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .user-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .user-badge {
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            border: 1px solid #333;
+            font-size: 12px;
+        }
+
+        .user-badge.active {
+            border-color: #667eea;
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 VoiceMeet & Space-X Voice Chat API Tester</h1>
+            <p>Test all VoiceMeet and Space-X voice chat APIs with real-time socket integration</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="user-section">
+                    <h3>Current User</h3>
+                    <div class="input-group">
+                        <label>User ID</label>
+                        <input type="text" id="currentUserId" placeholder="Enter User ID">
+                    </div>
+                    <div class="input-group">
+                        <label>Club ID (for VoiceMeet)</label>
+                        <input type="text" id="clubId" placeholder="Enter Club ID">
+                    </div>
+                    <div class="input-group">
+                        <label>VoiceMeet ID</label>
+                        <input type="text" id="voicemeetId" placeholder="Auto-filled after creation">
+                    </div>
+                    <div class="input-group">
+                        <label>Channel Name</label>
+                        <input type="text" id="channelName" placeholder="Auto-filled after creation">
+                    </div>
+                    <div class="input-group">
+                        <label>Token</label>
+                        <input type="text" id="token" placeholder="Auto-filled after creation">
+                    </div>
+                    <div class="input-group">
+                        <label>Access Token (Bearer Token)</label>
+                        <input type="text" id="accessToken" placeholder="Enter access token for API auth">
+                    </div>
+                    <button class="btn" onclick="saveAccessToken()">Save Access Token</button>
+                    <button class="btn" onclick="connectSocket()">
+                        <span class="status-indicator disconnected" id="socketStatus"></span>
+                        Connect Socket
+                    </button>
+                </div>
+
+                <div class="user-section">
+                    <h3>Multi-User Testing</h3>
+                    <div class="input-group">
+                        <label>Additional User IDs (comma-separated)</label>
+                        <input type="text" id="additionalUsers" placeholder="user1,user2,user3">
+                    </div>
+                    <button class="btn btn-success" onclick="setupMultipleUsers()">Setup Multiple Users</button>
+                    <div id="userList" class="user-list"></div>
+                </div>
+
+                <div class="user-section">
+                    <h3>Quick Actions</h3>
+                    <button class="btn btn-success" onclick="createVoiceMeet()">Create VoiceMeet</button>
+                    <button class="btn" onclick="joinVoiceMeet()">Join VoiceMeet</button>
+                    <button class="btn btn-danger" onclick="leaveVoiceMeet()">Leave VoiceMeet</button>
+                    <button class="btn btn-danger" onclick="endVoiceChat()">End Voice Chat</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('basic')">Basic APIs</button>
+                    <button class="tab" onclick="switchTab('spacex')">Space-X APIs</button>
+                    <button class="tab" onclick="switchTab('moderation')">Moderation</button>
+                    <button class="tab" onclick="switchTab('logs')">Logs</button>
+                </div>
+
+                <div id="basicTab" class="tab-content active">
+                    <div class="api-section">
+                        <h3>VoiceMeet Management</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Create VoiceMeet</h4>
+                                <button onclick="createVoiceMeet()">Create</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Join Stream</h4>
+                                <button onclick="joinStream()">Join</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Leave VoiceMeet</h4>
+                                <button onclick="leaveVoiceMeet()">Leave</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method delete">DELETE</span> Delete Stream</h4>
+                                <button onclick="deleteStream()">Delete</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Stream by User ID</h4>
+                                <button onclick="getStreamByUserId()">Get</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Streams of Following</h4>
+                                <button onclick="getStreamsOfFollowing()">Get</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Viewers</h4>
+                                <button onclick="getViewers()">Get</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Viewers Count</h4>
+                                <button onclick="getViewersCount()">Get</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3>Invitations & Members</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Send Invite</h4>
+                                <button onclick="sendInvite()">Send</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Send Audience Invite</h4>
+                                <button onclick="sendAudienceInvite()">Send</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Add Members</h4>
+                                <button onclick="addMembers()">Add</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Kick User</h4>
+                                <button onclick="kickUser()">Kick</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Schedule VoiceMeet</h4>
+                                <button onclick="scheduleVoiceMeet()">Schedule</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="spacexTab" class="tab-content">
+                    <div class="api-section">
+                        <h3>Listener Workflow</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Request to Speak</h4>
+                                <button onclick="requestToSpeak()">Request</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Speaking Requests</h4>
+                                <button onclick="getSpeakingRequests()">Get</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3>Host/Moderator Actions</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Approve Speaking Request</h4>
+                                <button onclick="approveSpeakingRequest()">Approve</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Deny Speaking Request</h4>
+                                <button onclick="denySpeakingRequest()">Deny</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Mute Speaker</h4>
+                                <button onclick="muteSpeaker()">Mute</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Unmute Speaker</h4>
+                                <button onclick="unmuteSpeaker()">Unmute</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Move to Listener</h4>
+                                <button onclick="moveToListener()">Move</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3>Role Management</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Assign Co-Host</h4>
+                                <button onclick="assignCoHost()">Assign</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Assign Moderator</h4>
+                                <button onclick="assignModerator()">Assign</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Make Moderator (Legacy)</h4>
+                                <button onclick="makeModerator()">Make</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method patch">PATCH</span> Remove Moderator (Legacy)</h4>
+                                <button onclick="removeModerator()">Remove</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Moderators</h4>
+                                <button onclick="getModerators()">Get</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3>Room Features</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> React with Emoji</h4>
+                                <button onclick="reactWithEmoji()">React</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Share Room</h4>
+                                <button onclick="shareRoom()">Share</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Pin Message</h4>
+                                <button onclick="pinMessage()">Pin</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="moderationTab" class="tab-content">
+                    <div class="api-section">
+                        <h3>User Management</h3>
+                        <div class="api-grid">
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Remove from Space</h4>
+                                <button onclick="removeFromSpace()">Remove</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Ban User</h4>
+                                <button onclick="banUser()">Ban</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method post">POST</span> Report User in Space</h4>
+                                <button onclick="reportUserInSpace()">Report</button>
+                            </div>
+                            <div class="api-card">
+                                <h4><span class="method get">GET</span> Get Blocked</h4>
+                                <button onclick="getBlocked()">Get</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="logsTab" class="tab-content">
+                    <button class="btn clear-log" onclick="clearLogs()">Clear Logs</button>
+                    <div id="logArea" class="log-area"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // const BASE_URL = 'https://coherent-internal-tahr.ngrok-free.app';
+        const BASE_URL = 'http://ec2-44-206-194-217.compute-1.amazonaws.com:4000';
+        let socket = null;
+        let currentUserId = '';
+        let additionalUsers = [];
+        let activeUserIndex = 0;
+
+        // Initialize - Load saved access token
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('voicemeet_access_token');
+            if (savedToken) {
+                document.getElementById('accessToken').value = savedToken;
+                log('Access token loaded from storage', 'success');
+            }
+        });
+
+        document.getElementById('currentUserId').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                connectSocket();
+            }
+        });
+
+        function saveAccessToken() {
+            const token = document.getElementById('accessToken').value.trim();
+            if (!token) {
+                alert('Please enter an access token');
+                return;
+            }
+            localStorage.setItem('voicemeet_access_token', token);
+            log('Access token saved successfully', 'success');
+            alert('Access token saved! It will be used in all API requests.');
+        }
+
+        function getAccessToken() {
+            const token = document.getElementById('accessToken').value.trim();
+            if (token) {
+                return token;
+            }
+            // Fallback to localStorage
+            return localStorage.getItem('voicemeet_access_token') || '';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function log(message, type = 'info', data = null) {
+            const logArea = document.getElementById('logArea');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            
+            const time = new Date().toLocaleTimeString();
+            let html = `<span class="log-time">[${time}]</span><span class="log-message">${message}</span>`;
+            
+            if (data) {
+                html += `<div class="log-data">${JSON.stringify(data, null, 2)}</div>`;
+            }
+            
+            entry.innerHTML = html;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logArea').innerHTML = '';
+        }
+
+        function connectSocket() {
+            const userId = document.getElementById('currentUserId').value.trim();
+            if (!userId) {
+                alert('Please enter a User ID');
+                return;
+            }
+
+            currentUserId = userId;
+
+            if (socket) {
+                socket.disconnect();
+            }
+
+            socket = io(BASE_URL, {
+                auth: {
+                    userid: userId
+                }
+            });
+
+            socket.on('connect', () => {
+                log(`Socket connected for user: ${userId}`, 'success');
+                document.getElementById('socketStatus').classList.remove('disconnected');
+                document.getElementById('socketStatus').classList.add('connected');
+            });
+
+            socket.on('disconnect', () => {
+                log(`Socket disconnected`, 'error');
+                document.getElementById('socketStatus').classList.remove('connected');
+                document.getElementById('socketStatus').classList.add('disconnected');
+            });
+
+            // Listen to all socket events
+            const socketEvents = [
+                'newUserJoined', 'memberCount', 'userKicked', 'streamended',
+                'speakingRequest', 'speakingRequestApproved', 'speakingRequestDenied',
+                'userMuted', 'userUnmuted', 'coHostAssigned', 'moderatorAssigned',
+                'movedToListener', 'removedFromSpace', 'userBanned', 'userReported',
+                'emojiReaction', 'voiceChatEnded', 'messagePinned'
+            ];
+
+            socketEvents.forEach(eventName => {
+                socket.on(eventName, (data) => {
+                    log(`Socket Event: ${eventName}`, 'socket', data);
+                });
+            });
+        }
+
+        function setupMultipleUsers() {
+            const usersInput = document.getElementById('additionalUsers').value.trim();
+            if (!usersInput) {
+                alert('Please enter user IDs separated by commas');
+                return;
+            }
+
+            additionalUsers = usersInput.split(',').map(u => u.trim()).filter(u => u);
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+
+            additionalUsers.forEach((userId, index) => {
+                const badge = document.createElement('div');
+                badge.className = 'user-badge';
+                badge.textContent = `User ${index + 1}: ${userId}`;
+                badge.onclick = () => switchUser(index);
+                userList.appendChild(badge);
+            });
+
+            log(`Setup ${additionalUsers.length} additional users for testing`, 'success');
+        }
+
+        function switchUser(index) {
+            activeUserIndex = index;
+            document.querySelectorAll('.user-badge').forEach((badge, i) => {
+                if (i === index) {
+                    badge.classList.add('active');
+                } else {
+                    badge.classList.remove('active');
+                }
+            });
+        }
+
+        async function makeRequest(method, endpoint, body = null) {
+            try {
+                const accessToken = getAccessToken();
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                };
+
+                // Add Authorization header if token exists
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+
+                const options = {
+                    method,
+                    headers
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                log(`${method} ${endpoint}${accessToken ? ' (with auth token)' : ' (no auth token)'}`, 'info', body);
+                const response = await fetch(`${BASE_URL}${endpoint}`, options);
+                const data = await response.json();
+
+                if (response.ok) {
+                    log(`✅ Success: ${endpoint}`, 'success', data);
+                    return data;
+                } else {
+                    log(`❌ Error: ${endpoint}`, 'error', data);
+                    throw new Error(data.error || data.message || 'Unknown error');
+                }
+            } catch (error) {
+                log(`❌ Exception: ${endpoint}`, 'error', { error: error.message });
+                throw error;
+            }
+        }
+
+        function getCurrentUserId() {
+            return document.getElementById('currentUserId').value.trim();
+        }
+
+        function getClubId() {
+            return document.getElementById('clubId').value.trim();
+        }
+
+        function getVoiceMeetId() {
+            return document.getElementById('voicemeetId').value.trim();
+        }
+
+        function promptForInput(promptText, defaultValue = '') {
+            const value = prompt(promptText, defaultValue);
+            return value ? value.trim() : '';
+        }
+
+        // Basic APIs
+        async function createVoiceMeet() {
+            const userid = getCurrentUserId();
+            const clubid = getClubId();
+            
+            if (!userid || !clubid) {
+                alert('Please enter User ID and Club ID');
+                return;
+            }
+
+            // Check if access token exists, if not prompt for it
+            let accessToken = getAccessToken();
+            if (!accessToken) {
+                accessToken = prompt('Please enter your access token (Bearer token):');
+                if (!accessToken) {
+                    alert('Access token is required to make API requests');
+                    return;
+                }
+                document.getElementById('accessToken').value = accessToken;
+                localStorage.setItem('voicemeet_access_token', accessToken);
+                log('Access token saved from createVoiceMeet prompt', 'success');
+            }
+
+            const members = prompt('Enter member IDs (comma-separated, or leave empty):');
+            const membersArray = members ? members.split(',').map(m => m.trim()) : [];
+
+            try {
+                const data = await makeRequest('POST', '/voicemeet/createVoiceMeet', {
+                    userid,
+                    clubid,
+                    members: membersArray
+                });
+
+                if (data._id) {
+                    document.getElementById('voicemeetId').value = data._id;
+                    document.getElementById('channelName').value = data.channelName || '';
+                    document.getElementById('token').value = data.token || '';
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function joinStream() {
+            const userid = getCurrentUserId();
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!userid || !streamid) {
+                alert('Please enter User ID and Stream ID');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/joinStream', {
+                    userid,
+                    streamid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function joinVoiceMeet() {
+            await joinStream();
+        }
+
+        async function leaveVoiceMeet() {
+            const userid = getCurrentUserId();
+            const clubid = getClubId();
+
+            if (!userid || !clubid) {
+                alert('Please enter User ID and Club ID');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/leaveVoiceMeet', {
+                    userid,
+                    clubid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function deleteStream() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!streamid) {
+                alert('Please enter Stream ID');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this stream?')) {
+                return;
+            }
+
+            try {
+                await makeRequest('DELETE', '/voicemeet/deleteStream', {
+                    streamid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getStreamByUserId() {
+            const userid = getCurrentUserId() || promptForInput('Enter User ID:');
+
+            if (!userid) {
+                alert('Please enter User ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getStreamByUserId/${userid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getStreamsOfFollowing() {
+            const userid = getCurrentUserId() || promptForInput('Enter User ID:');
+
+            if (!userid) {
+                alert('Please enter User ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getStreamsOfFollowing/${userid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getViewers() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!streamid) {
+                alert('Please enter Stream ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getViewers/${streamid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getViewersCount() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!streamid) {
+                alert('Please enter Stream ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getViewersCount/${streamid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function sendInvite() {
+            const userid = promptForInput('Enter User ID to invite:');
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+            const channel = document.getElementById('channelName').value || promptForInput('Enter Channel Name:');
+            const token = document.getElementById('token').value || promptForInput('Enter Token:');
+
+            if (!userid || !streamid || !channel || !token) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/sendInvite', {
+                    userid,
+                    streamid,
+                    channel,
+                    token
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function sendAudienceInvite() {
+            const userid = promptForInput('Enter User ID to invite:');
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+            const senderid = getCurrentUserId();
+
+            if (!userid || !streamid || !senderid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/sendAudianceInvite', {
+                    userid,
+                    streamid,
+                    senderid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function addMembers() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+            const userid = getCurrentUserId();
+            const members = prompt('Enter member IDs (comma-separated):');
+
+            if (!streamid || !userid || !members) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/addMembers', {
+                    streamid,
+                    userid,
+                    members: members.split(',').map(m => m.trim())
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function kickUser() {
+            const userid = promptForInput('Enter User ID to kick:');
+            const clubid = getClubId();
+
+            if (!userid || !clubid) {
+                alert('Please enter User ID and Club ID');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/kickUser', {
+                    userid,
+                    clubid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function scheduleVoiceMeet() {
+            const userid = getCurrentUserId();
+            const clubid = getClubId();
+            const scheduleTime = prompt('Enter schedule time (ISO format, e.g., 2024-12-31T12:00:00Z):');
+            const members = prompt('Enter member IDs (comma-separated):');
+
+            if (!userid || !clubid || !scheduleTime) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/scheduleVoiceMeet', {
+                    userid,
+                    clubid,
+                    scheduleTime,
+                    members: members ? members.split(',').map(m => m.trim()) : []
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Space-X APIs
+        async function requestToSpeak() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+
+            if (!userid || !voicemeetid) {
+                alert('Please enter User ID and VoiceMeet ID');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/requestToSpeak', {
+                    userid,
+                    voicemeetid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function approveSpeakingRequest() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const requesterid = promptForInput('Enter Requester User ID:');
+
+            if (!userid || !voicemeetid || !requesterid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/approveSpeakingRequest', {
+                    userid,
+                    voicemeetid,
+                    requesterid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function denySpeakingRequest() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const requesterid = promptForInput('Enter Requester User ID:');
+
+            if (!userid || !voicemeetid || !requesterid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/denySpeakingRequest', {
+                    userid,
+                    voicemeetid,
+                    requesterid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function muteSpeaker() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+            const muteType = prompt('Enter mute type (hard/soft, default: hard):', 'hard') || 'hard';
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/muteSpeaker', {
+                    userid,
+                    voicemeetid,
+                    targetUserid,
+                    muteType
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function unmuteSpeaker() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/unmuteSpeaker', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function assignCoHost() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/assignCoHost', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function assignModerator() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/assignModerator', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function moveToListener() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/moveToListener', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function removeFromSpace() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to remove this user from the space?')) {
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/removeFromSpace', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function banUser() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const targetUserid = promptForInput('Enter Target User ID:');
+
+            if (!userid || !voicemeetid || !targetUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to ban this user?')) {
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/banUser', {
+                    userid,
+                    voicemeetid,
+                    targetUserid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function reportUserInSpace() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const reportedUserid = promptForInput('Enter Reported User ID:');
+            const reason = prompt('Enter report reason:');
+            const reportType = prompt('Enter report type (nudity/harassment/hate_speech/scam/underage/spam):');
+
+            if (!userid || !voicemeetid || !reportedUserid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/reportUserInSpace', {
+                    userid,
+                    voicemeetid,
+                    reportedUserid,
+                    reason,
+                    reportType
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function reactWithEmoji() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const emoji = prompt('Enter emoji:', '👍');
+
+            if (!userid || !voicemeetid || !emoji) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/reactWithEmoji', {
+                    userid,
+                    voicemeetid,
+                    emoji
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function shareRoom() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+
+            if (!userid || !voicemeetid) {
+                alert('Please enter User ID and VoiceMeet ID');
+                return;
+            }
+
+            try {
+                const data = await makeRequest('POST', '/voicemeet/shareRoom', {
+                    userid,
+                    voicemeetid
+                });
+                alert(`Share Data:\n${JSON.stringify(data.shareData, null, 2)}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function endVoiceChat() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+
+            if (!userid || !voicemeetid) {
+                alert('Please enter User ID and VoiceMeet ID');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to end this voice chat?')) {
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/endVoiceChat', {
+                    userid,
+                    voicemeetid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function pinMessage() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+            const messageid = promptForInput('Enter Message ID:');
+
+            if (!userid || !voicemeetid || !messageid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('POST', '/voicemeet/pinMessage', {
+                    userid,
+                    voicemeetid,
+                    messageid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getSpeakingRequests() {
+            const userid = getCurrentUserId();
+            const voicemeetid = getVoiceMeetId() || promptForInput('Enter VoiceMeet ID:');
+
+            if (!userid || !voicemeetid) {
+                alert('Please enter User ID and VoiceMeet ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getSpeakingRequests/${userid}?voicemeetid=${voicemeetid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function makeModerator() {
+            const userid = promptForInput('Enter User ID to make moderator:');
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!userid || !streamid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/makeModerator', {
+                    userid,
+                    streamid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function removeModerator() {
+            const userid = promptForInput('Enter User ID to remove from moderators:');
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!userid || !streamid) {
+                alert('Please enter all required fields');
+                return;
+            }
+
+            try {
+                await makeRequest('PATCH', '/voicemeet/removeModerator', {
+                    userid,
+                    streamid
+                });
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getModerators() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!streamid) {
+                alert('Please enter Stream ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getModerators/${streamid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function getBlocked() {
+            const streamid = getVoiceMeetId() || promptForInput('Enter Stream ID:');
+
+            if (!streamid) {
+                alert('Please enter Stream ID');
+                return;
+            }
+
+            try {
+                await makeRequest('GET', `/voicemeet/getBlocked/${streamid}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
+

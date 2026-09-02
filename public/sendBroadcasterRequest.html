@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request User side</title>
+</head>
+<body>
+  <button requested="0">Request For Broadcaster</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const userid = "664f3b1eb5cba769fd3f2e0a"
+        const streamid = "6655a2809ce8d15ee81c5cc0";
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: userid
+            }
+        });
+
+        var button = document.querySelector("button");
+        button.addEventListener("click", e=>{
+          var requested = button.getAttribute("requested");
+          var data = {
+            streamid,
+            userid: userid
+          }
+          if(requested == "0"){
+            socket.emit("sendBroadcasterRequest", data)
+            button.setAttribute("block", "1")
+          }
+        })
+
+      socket.on("acceptedBroadcasterRequest", (data) => {
+        console.log("Accepted Request response: ", data);
+      });
+
+      socket.on("rejectedBroadcasterRequest", (data) => {
+        console.log("Rejected Request response: ", data);
+      });
+
+    </script>
+</body>
+</html>

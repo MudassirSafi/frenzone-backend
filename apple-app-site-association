@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "A9Y5NK33K8.app.Frenzone.sheesX",
+        "paths": [ "/post/*", "/blink/*", "/profile/*" ]
+      }
+    ]
+  }
+}

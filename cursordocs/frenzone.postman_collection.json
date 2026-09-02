@@ -1,0 +1,5175 @@
+{
+	"info": {
+		"_postman_id": "820e6774-c9d7-4a42-bb7e-d524642a0771",
+		"name": "frenzone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18193598",
+		"_collection_link": "https://ksqamar.postman.co/workspace/My-Workspace~bc70d060-b9e4-4f83-822d-2391b374c08b/collection/18193598-820e6774-c9d7-4a42-bb7e-d524642a0771?action=share&source=collection_link&creator=18193598"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGM2Y2FkMmI1NmI1ZTUyYjU4OGFjZCIsImlhdCI6MTcxNjI4NDU5OH0.fVfBCQgYT26DXaQVQZ_2UECTprpFaheKr1k8FdHywek",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"user2@gmail.com\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"user2\",\r\n    \"firstname\":\"user2\",\r\n    \"lastname\":\"2last name\",\r\n    \"email\":\"user2@gmail.com\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyOTP",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"user2@gmail.com\",\r\n    \"otp\":1889\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/verifyOTP",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"verifyOTP"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "googleLogin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"hamza\",\r\n    \"email\":\"hamza@gmail.com\",\r\n    \"picUrl\":\"https://lh3.googleusercontent.com/a/ACg8ocJzOZjIC-u5bfFrEH_kgzm8ZS0SkNUE4WZVd1-eYr9K=s96-c\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/auth/googleLogin",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"auth",
+								"googleLogin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setFcmToken",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65ce4b0f42fc2247b540b6a7\",\r\n    \"fcmtoken\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/auth/setFcmToken",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"auth",
+								"setFcmToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteFcmToken",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65ce4b0f42fc2247b540b6a7\",\r\n    \"fcmtoken\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/auth/deleteFcmToken",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"auth",
+								"deleteFcmToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "linkedInLogin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/auth/linkedInLogin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"linkedInLogin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendVerifySms",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\": \"+923079624461\",\r\n    \"dob\": \"30-11-2024\",\r\n    \"userid\": \"6669929d5a47b3a0d0e3a0df\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/sendVerifySms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"sendVerifySms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "VerifySmsOtp",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\": \"+923079624461\",\r\n    \"otp\": \"9490\",\r\n    \"userid\": \"6669929d5a47b3a0d0e3a0df\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/VerifySmsOtp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"VerifySmsOtp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/verifyUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"verifyUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "post",
+			"item": [
+				{
+					"name": "createPost",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGM2Y2FkMmI1NmI1ZTUyYjU4OGFjZCIsImlhdCI6MTcxNjM4NTg4OH0.fQlkgaruLxNcaAWPHohsp2_SeoipUHbEAkb3P-5CmSk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userid",
+									"value": "664c6cad2b56b5e52b588acd",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "one hand",
+									"type": "text"
+								},
+								{
+									"key": "postType",
+									"value": "public",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "contents",
+									"type": "file",
+									"src": "/C:/Users/hp/Downloads/WhatsApp Image 2024-05-22 at 9.41.25 PM.jpeg"
+								},
+								{
+									"key": "thumbnails",
+									"type": "file",
+									"src": "/D:/university/frenzone_backend/weapons_images.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/post/createPost",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"post",
+								"createPost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editPost",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"65d36373010efe26479fc90f\",\r\n    \"description\":\"Updated description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/editPost",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"editPost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletePost",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"6620ca4705925f3a48c19afd\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/deletePost",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"deletePost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllposts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MzIzYWRjZjMzMDNhOWJhNzBjYzI3NSIsImlhdCI6MTcxNTY5NTUwNH0.O8jfqiYGh4IgxfzEDd1MGfRjSrJ1zCHQFxxp1GofAq4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/post/getAllposts/6646691ead62ba2919a46c26",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"post",
+								"getAllposts",
+								"6646691ead62ba2919a46c26"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPostById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MzIzYWRjZjMzMDNhOWJhNzBjYzI3NSIsImlhdCI6MTcxNTY5NTUwNH0.O8jfqiYGh4IgxfzEDd1MGfRjSrJ1zCHQFxxp1GofAq4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/post/getAllposts/6646691ead62ba2919a46c26",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"post",
+								"getAllposts",
+								"6646691ead62ba2919a46c26"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserPosts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MzIzYWRjZjMzMDNhOWJhNzBjYzI3NSIsImlhdCI6MTcxNTY5NTUwNH0.O8jfqiYGh4IgxfzEDd1MGfRjSrJ1zCHQFxxp1GofAq4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/post/getUserPosts/6644a3984b3b939f81e6fa8d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"post",
+								"getUserPosts",
+								"6644a3984b3b939f81e6fa8d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pinPost",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"65d36b38c53c27204152e671\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/pinPost",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"pinPost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "likePost",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"663f4c2a4c2c7d026de687e5\",\r\n    \"userid\":\"6662fcc574b6073cfa1e1816\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/post/likePost",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"post",
+								"likePost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeComment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"65b5389f9920ad455e37dcdd\",\r\n    \"userid\":\"65b5388e9920ad455e37dcd4\",\r\n    \"description\":\"First comment to first post\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/makeComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"makeComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getComments",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/getComments/65b5389f9920ad455e37dcdd",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"getComments",
+								"65b5389f9920ad455e37dcdd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "likeComment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65a90b276fefd4d1a1f14401\",\r\n    \"userid\":\"65a9086480c774765fb32564\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/likeComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"likeComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteComment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65b28e32aacdaeb3402de8e1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/deleteComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"deleteComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeReply",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65b538fa9920ad455e37dcec\",\r\n    \"userid\":\"65b5388e9920ad455e37dcd4\",\r\n    \"description\":\"I am making a reply\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/makeReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"makeReply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getReplies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/post/getReplies/65b538fa9920ad455e37dcec",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"getReplies",
+								"65b538fa9920ad455e37dcec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "likeReply",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"replyid\":\"65a90cd56fefd4d1a1f1441b\",\r\n    \"userid\":\"65a9086480c774765fb32564\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/likeReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"likeReply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteReply",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"replyid\":\"65a90cd56fefd4d1a1f1441b\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/deleteReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"deleteReply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bookmarkPost",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65bb9ca8711b355561215b27\",\r\n    \"postid\":\"65b9e17c8fd5df5110d787ed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/bookmarkPost",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"bookmarkPost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookmarked",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/post/getBookmarked/65bb9ca8711b355561215b27",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"getBookmarked",
+								"65bb9ca8711b355561215b27"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buyPost",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postid\":\"65bf509f349bd0f8d4e5b5bc\",\r\n    \"userid\":\"65bf5043349bd0f8d4e5b5ad\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/post/buyPost",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"post",
+								"buyPost"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "getUserById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/getUserById/664b4df6dd48e4ffa5045a58",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getUserById",
+								"664b4df6dd48e4ffa5045a58"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserVerifiedStatus",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/getUserById/664b4df6dd48e4ffa5045a58",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getUserById",
+								"664b4df6dd48e4ffa5045a58"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserByRemoteId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/getUserByRemoteId/1684asdfja0sfj3209rjsilfjasoifjwer9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getUserByRemoteId",
+								"1684asdfja0sfj3209rjsilfjasoifjwer9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.frenzone.live/user/getAllUsers",
+							"protocol": "https",
+							"host": [
+								"api",
+								"frenzone",
+								"live"
+							],
+							"path": [
+								"user",
+								"getAllUsers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserProfile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/user/getUserProfile/660d286d82b6e5ad7b285a72",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"getUserProfile",
+								"660d286d82b6e5ad7b285a72"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getVideos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/user/getVideos/66633371dbb960a267736c8e",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getVideos",
+								"66633371dbb960a267736c8e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserReels",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/getUserReels/660d286d82b6e5ad7b285a72",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"getUserReels",
+								"660d286d82b6e5ad7b285a72"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getImages",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MzIzYWRjZjMzMDNhOWJhNzBjYzI3NSIsImlhdCI6MTcxNTY5NTUwNH0.O8jfqiYGh4IgxfzEDd1MGfRjSrJ1zCHQFxxp1GofAq4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/getImages/6644a3984b3b939f81e6fa8d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getImages",
+								"6644a3984b3b939f81e6fa8d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "followUser",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentUserId\":\"660a92b87dcd021e9ff12380\",\r\n    \"usertoFollowId\":\"660a97de6398d13b1ea48a2f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/followUser",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"followUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "blockUser",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentUserId\":\"65afca079834111102fa678d\",\r\n    \"usertoBlockId\":\"65afca179834111102fa6791\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/blockUser",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"blockUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setUserRemoteId",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remoteid\": \"la;ddsdsf\",\r\n    \"userid\": \"663f4ac34c2c7d026de687de\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/setUserRemoteId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"setUserRemoteId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchUsers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"search\":\"a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/searchUsers",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"searchUsers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllFollowers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/user/getAllFollowers/65b5388e9920ad455e37dcd4",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"getAllFollowers",
+								"65b5388e9920ad455e37dcd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllFollowing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/user/getAllFollowing/65bf5019349bd0f8d4e5b5a1",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"getAllFollowing",
+								"65bf5019349bd0f8d4e5b5a1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBlocked",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/user/getBlocked/65b5388e9920ad455e37dcd4",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"getBlocked",
+								"65b5388e9920ad455e37dcd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setProfilePic",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/PMYLS/Pictures/Camera Roll/WIN_20240125_18_05_00_Pro.jpg"
+								},
+								{
+									"key": "userid",
+									"value": "660a92b87dcd021e9ff12380",
+									"contentType": "auto",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{publicip}}/user/setProfilePic",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"setProfilePic"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProfilePic",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/user/getProfilePic/6644a3984b3b939f81e6fa8d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"getProfilePic",
+								"6644a3984b3b939f81e6fa8d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteProfilePic",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65afca179834111102fa6791\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/deleteProfilePic",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"deleteProfilePic"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changePassword",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65b7bc5d71d31bb7801a8562\",\r\n    \"oldpassword\":\"babar123\",\r\n    \"newpassword\":\"babar1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/changePassword",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"changePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPasswordRequest",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"hamza.aamir.rasheed3@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/resetPasswordRequest",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"resetPasswordRequest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyPasswordOtp",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"hamza.aamir.rasheed3@gmail.com\",\r\n    \"otp\":2858\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/verifyPasswordOtp",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"verifyPasswordOtp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "newPassword",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"hamza.aamir.rasheed3@gmail.com\",\r\n    \"newpassword\":\"hamza33\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/newPassword",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"newPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editProfile",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6648c6738eda9b6bea54ddb1\",\r\n    \"firstname\":\"M\",\r\n    \"lastname\":\"Hamza\",\r\n    \"facebookUrl\":\"facebook.com\",\r\n    \"instagramUrl\":\"insta.com\",\r\n    \"linkedinUrl\":\"link.com\",\r\n    \"twitterUrl\":\"twitter.com\",\r\n    \"bio\":\"This is Bio\",\r\n    \"WebsiteUrl\":\"google.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/editProfile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"editProfile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setVerified",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65bba5b92da2ac8a1e169e88\",\r\n    \"verification\":true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/user/setVerified",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"user",
+								"setVerified"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"6655a59063215446feea7161\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/deleteUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"deleteUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserBank",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"6669929d5a47b3a0d0e3a0df\",\r\n    \"name\": \"khawar saleem\",\r\n    \"accountNumber\": \"\",\r\n    \"addressLine1\": \"\",\r\n    \"addressLine2\": \"\",\r\n    \"city\": \"\",\r\n    \"province\": \"\",\r\n    \"postalCode\": \"\",\r\n    \"receivingBank\": \"\",\r\n    \"routingNumber\": \"\",\r\n    \"swiftCode\": \"\",\r\n    \"intermediaryBankName\": \"\",\r\n    \"referenceInformation\": \"\",\r\n    \"purposeOfPayment\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/updateUserBank",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"updateUserBank"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserPaypal",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"6669929d5a47b3a0d0e3a0df\",\r\n    \"name\": \"khawar saleem\",\r\n    \"email\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/user/updateUserPaypal",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"updateUserPaypal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserVerifiedAccountSubscription",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/user/updateUserVerifiedAccountSubscription",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"updateUserVerifiedAccountSubscription"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "wallet",
+			"item": [
+				{
+					"name": "sendCoins",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentUserId\":\"6669929d5a47b3a0d0e3a0df\",\r\n    \"usedToSendId\":\"6641f13e10b0fafe0b1e5d4a\",\r\n    \"coinAmount\":100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/wallet/sendCoins",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"wallet",
+								"sendCoins"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBalance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/wallet/getBalance/660ced1c82b6e5ad7b285a16",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"wallet",
+								"getBalance",
+								"660ced1c82b6e5ad7b285a16"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getSentTips",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/wallet/getSentTips/65ce4b3742fc2247b540b6b3",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"wallet",
+								"getSentTips",
+								"65ce4b3742fc2247b540b6b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getReceivedTips",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/wallet/getReceivedTips/65ce4b0f42fc2247b540b6a7",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"wallet",
+								"getReceivedTips",
+								"65ce4b0f42fc2247b540b6a7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addCoins",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"6669929d5a47b3a0d0e3a0df\",\r\n    \"amount\": 5,\r\n    \"coins\": 100\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/wallet/addCoins",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"wallet",
+								"addCoins"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "chat",
+			"item": [
+				{
+					"name": "getChatHistory",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65bf5019349bd0f8d4e5b5a1\",\r\n    \"otherUserid\":\"65ce4b0f42fc2247b540b6a7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/chat/getChatHistory",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"chat",
+								"getChatHistory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getThreads",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/chat/getThreads/65ce4b0f42fc2247b540b6a7",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"chat",
+								"getThreads",
+								"65ce4b0f42fc2247b540b6a7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reels",
+			"item": [
+				{
+					"name": "postReel",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NDRhMzk4NGIzYjkzOWY4MWU2ZmE4ZCIsImlhdCI6MTcxNTc3NDQyMX0.RwjezDCIKJW88UV9E44mbdHHPQnN7tUJCWPxzjyBc-w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userid",
+									"value": "6644a3984b3b939f81e6fa8d",
+									"contentType": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "video",
+									"type": "text"
+								},
+								{
+									"key": "video",
+									"type": "file",
+									"src": "/D:/university/frenzone_backend/casinos.mp4"
+								},
+								{
+									"key": "thumbnail",
+									"type": "file",
+									"src": "/D:/university/frenzone_backend/white.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/reels/postReel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"reels",
+								"postReel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteReel",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reelid\":\"65b9235c8fd5df5110d7791c\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/deleteReel",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"deleteReel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "like",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reelid\":\"65b54f3257fe1318ac0ab6e6\",\r\n    \"userid\":\"65b5388e9920ad455e37dcd4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/likeReel",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"likeReel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserReels",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NDRhMzk4NGIzYjkzOWY4MWU2ZmE4ZCIsImlhdCI6MTcxNTc3NDQyMX0.RwjezDCIKJW88UV9E44mbdHHPQnN7tUJCWPxzjyBc-w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"66476c9b75695bd46b6c978d\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/reels/getUserReels/6644a3984b3b939f81e6fa8d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"reels",
+								"getUserReels",
+								"6644a3984b3b939f81e6fa8d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllPostedReels",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NDRhMzk4NGIzYjkzOWY4MWU2ZmE4ZCIsImlhdCI6MTcxNTc3NDQyMX0.RwjezDCIKJW88UV9E44mbdHHPQnN7tUJCWPxzjyBc-w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/reels/getAllPostedReels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"reels",
+								"getAllPostedReels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "viewReel",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reelid\":\"65b54f3257fe1318ac0ab6e6\",\r\n    \"userid\":\"65b5388e9920ad455e37dcd4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/viewReel",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"viewReel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeComment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reelid\":\"66b2290ced9a21ccab036e8c\",\r\n    \"userid\":\"6669929d5a47b3a0d0e3a0df\",\r\n    \"description\":\"oh\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/makeComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"makeComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getComments",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/getComments/65c28241583cc1fca42f8b1e",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"getComments",
+								"65c28241583cc1fca42f8b1e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "likeComment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65c3a93f867aa14032adbfb3\",\r\n    \"userid\":\"65bf5019349bd0f8d4e5b5a1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/likeComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"likeComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteComment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65c3a93f867aa14032adbfb3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/deleteComment",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"deleteComment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeReply",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentid\":\"65b538fa9920ad455e37dcec\",\r\n    \"userid\":\"65b5388e9920ad455e37dcd4\",\r\n    \"description\":\"I am making a reply\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/makeReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"makeReply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getReplies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/reels/getReplies/65b538fa9920ad455e37dcec",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"getReplies",
+								"65b538fa9920ad455e37dcec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "likeReply",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"replyid\":\"65a90cd56fefd4d1a1f1441b\",\r\n    \"userid\":\"65a9086480c774765fb32564\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/likeReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"likeReply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteReply",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"replyid\":\"65a90cd56fefd4d1a1f1441b\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/reels/deleteReply",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"reels",
+								"deleteReply"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTU2M2YwYjEyMjVhMDk5MjQ3ZWNhOCIsImlhdCI6MTcwNDI4OTQxM30.2iYACLdzu_Ygns7xkAJr3iM3X6NbjiFepWui_3l6gUA",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "story",
+			"item": [
+				{
+					"name": "postStory",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userid",
+									"value": "65c12bde48cb94ee69853ebe",
+									"type": "text"
+								},
+								{
+									"key": "contents",
+									"type": "file",
+									"src": [
+										"/C:/Users/PMYLS/Pictures/Camera Roll/1.jpg",
+										"/C:/Users/PMYLS/Pictures/Camera Roll/1.mp4"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "{{publicip}}/story/postStory",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"story",
+								"postStory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NDhjNjczOGVkYTliNmJlYTU0ZGRiMSIsImlhdCI6MTcxNjIwNzIwNH0.enxRT9TbIZtXlkzis6EtQPxFor7cMy43wa_vfPHwlvw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/story/getStories/6648c6738eda9b6bea54ddb1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"story",
+								"getStories",
+								"6648c6738eda9b6bea54ddb1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserStory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/story/getUserStory/661e3ff060818bf5a069d0cc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"story",
+								"getUserStory",
+								"661e3ff060818bf5a069d0cc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteStory",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"storyid\":\"65ccd4d67f44c160340613f7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/story/deleteStory",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"story",
+								"deleteStory"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "clubs",
+			"item": [
+				{
+					"name": "createClub",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"66658e2663bc3714f233a889\",\r\n    \"privateChatRooms\":true,\r\n    \"pictureSharing\":true,\r\n    \"liveChatRooms\":true,\r\n    \"voiceCall\":true,\r\n    \"fee\":\"10\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/clubs/createClub",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"clubs",
+								"createClub"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteClub",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clubid\":\"65ca85f0536549b33d6c517e\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/deleteClub",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"deleteClub"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinClub",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65bf5019349bd0f8d4e5b5a1\",\r\n    \"clubid\":\"65ca894cb1f9ee97bdf29f7f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/joinClub",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"joinClub"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "leaveClub",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"\",\r\n    \"clubid\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/leaveClub",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"leaveClub"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getClub",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/clubs/getClub/6630dd70bee18ea9a806da77",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"getClub",
+								"6630dd70bee18ea9a806da77"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMembersOfClub",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/clubs/getMembersOfClub/65ca894cb1f9ee97bdf29f7f",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"getMembersOfClub",
+								"65ca894cb1f9ee97bdf29f7f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateFee",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clubid\":\"65ca894cb1f9ee97bdf29f7f\",\r\n    \"newfee\":300\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/updateFee",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"updateFee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getChatHistory",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clubid\":\"66b9e62bf2648b68b5a4c3d2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/clubs/getChatHistory",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"clubs",
+								"getChatHistory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createClubCall",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clubid\":\"662395d22f2e6140e37ffe0e\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/createClubCall",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"createClubCall"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteClubCall",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"callid\":\"662a5ca882f9f25a54f3cde4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/deleteClubCall",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"deleteClubCall"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getClubCall",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/getClubCall/662395d22f2e6140e37ffe0e",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"getClubCall",
+								"662395d22f2e6140e37ffe0e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinCall",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"callid\":\"662a5d0182f9f25a54f3cdf6\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/joinCall",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"joinCall"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "leaveCall",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"callid\":\"662a5d0182f9f25a54f3cdf6\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/clubs/leaveCall",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"clubs",
+								"leaveCall"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateClub",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clubid\" : \"66741e0feefbadfb86e9cf62\",\r\n    \"privateChatRooms\": false,\r\n    \"pictureSharing\" : true,\r\n    \"liveChatRooms\" : false,\r\n    \"voiceCall\": true,\r\n    \"fee\" : \"21.99\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/clubs/updateClub",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"clubs",
+								"updateClub"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tickets",
+			"item": [
+				{
+					"name": "createTicket",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGI0ZGY2ZGQ0OGU0ZmZhNTA0NWE1OCIsImlhdCI6MTcxNjIxMTE5OH0.ao_9kPsIPJPumm4p6FFxj7190Nfmd4_ueyvjXgT5los",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664b4df6dd48e4ffa5045a58\",\r\n    \"subject\":\"Ticket Topic\",\r\n    \"message\":\"This is a ticket\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/tickets/createTicket",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"tickets",
+								"createTicket"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "stream",
+			"item": [
+				{
+					"name": "createStream",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGYzYTc1YjVjYmE3NjlmZDNmMmRmMiIsImlhdCI6MTcxNjQ2ODM1N30.DqNVYNzFpzFe3JmCwxiJ5BKwspbXv6OO03funJhxf2Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664f3a75b5cba769fd3f2df2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/createStream",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"createStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createclubstream",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6641f13e10b0fafe0b1e5d4a\",\r\n    \"clubid\": \"66c9d423b9233df74dfe076f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/createClubStream",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"createClubStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getClubStreamStatus",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6641f13e10b0fafe0b1e5d4a\",\r\n    \"clubid\": \"66c9d423b9233df74dfe076f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/getClubStreamStatus/66c9d423b9233df74dfe076f/6641f13e10b0fafe0b1e5d4a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"getClubStreamStatus",
+								"66c9d423b9233df74dfe076f",
+								"6641f13e10b0fafe0b1e5d4a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStreamsOfFollowing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getStreamsOfFollowing/660a92b87dcd021e9ff12380",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getStreamsOfFollowing",
+								"660a92b87dcd021e9ff12380"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinStream",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcyMDI2ODYwOX0.rsrbffQ6-oKHuHMfxnzRvgHcvH0zfJMMoFp3TVubqEk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6662fcc574b6073cfa1e1816\",\r\n    \"streamid\":\"668939a1c55276f1451d32c2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/joinStream",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"joinStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "leaveStream",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65ce4b0f42fc2247b540b6a7\",\r\n    \"streamid\":\"66103b9ba98f94b010604e12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/leaveStream",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"leaveStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStreamByUserId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getStreamByUserId/661e3ff060818bf5a069d0cc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getStreamByUserId",
+								"661e3ff060818bf5a069d0cc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteStream",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"661d43888f95fafa1dd843ca\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/deleteStream",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"deleteStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getViewers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/getViewers/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getViewers",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getViewersCount",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcyMDI2ODYwOX0.rsrbffQ6-oKHuHMfxnzRvgHcvH0zfJMMoFp3TVubqEk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/getViewers/668cd6e91cac3d54fcaf2413",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"getViewers",
+								"668cd6e91cac3d54fcaf2413"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeModerator",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"662d0074200dc2992b4a3dfc\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/makeModerator",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"makeModerator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeModerator",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"662d0074200dc2992b4a3dfc\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/removeModerator",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"removeModerator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getModerators",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getModerators/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getModerators",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBlocked",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getBlocked/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getBlocked",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendInvite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGI1YzA2M2E5ZmRhYmQ4MTRhZjcxZCIsImlhdCI6MTcxNjIxNDgxMH0.zuH92zNznK8Md7Oo4pZ6LsXeHg-pEmIZfRd096-o9XA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"664b4df6dd48e4ffa5045a58\",\r\n    \"streamid\": \"664b7855c89b72bfe5664818\",\r\n    \"channel\":\"ok\",\r\n    \"token\":\"ok\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/sendInvite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"sendInvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendAudianceInvite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGM2Y2FkMmI1NmI1ZTUyYjU4OGFjZCIsImlhdCI6MTcxNjI5NzQ3NH0.RuraVWLzvzVWav67wqu3X1GhhZr0rV68HaXXMYphbrg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664c6cad2b56b5e52b588acd\",\r\n    \"senderid\":\"664b5c063a9fdabd814af71d\",\r\n    \"streamid\":\"664b7855c89b72bfe5664818\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/sendAudianceInvite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"sendAudianceInvite"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "voicemeet",
+			"item": [
+				{
+					"name": "createVoiceMeet",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"clubid\": \"667ab7df327a4317c879ba7a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/createVoiceMeet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"createVoiceMeet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStreamsOfFollowing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getStreamsOfFollowing/660a92b87dcd021e9ff12380",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getStreamsOfFollowing",
+								"660a92b87dcd021e9ff12380"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinStream",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGYzYjFlYjVjYmE3NjlmZDNmMmUwYSIsImlhdCI6MTcxNjQ2ODYwM30.OE8sk_E-SoDtettlCXj_uMVM3wXtj-WNaIWol5yrg5c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664f3b1eb5cba769fd3f2e0a\",\r\n    \"streamid\":\"66507eaf01e5935980b2a81b\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/joinStream",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"joinStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "leaveVoiceMeet",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"clubid\": \"667ab7df327a4317c879ba7a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/leaveVoiceMeet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"leaveVoiceMeet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStreamByUserId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getStreamByUserId/661e3ff060818bf5a069d0cc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getStreamByUserId",
+								"661e3ff060818bf5a069d0cc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteStream",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"661d43888f95fafa1dd843ca\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/deleteStream",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"deleteStream"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getViewers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/getViewers/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getViewers",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getViewersCount",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/getViewers/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getViewers",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeModerator",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"662d0074200dc2992b4a3dfc\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/makeModerator",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"makeModerator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeModerator",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"streamid\":\"662d0074200dc2992b4a3dfc\",\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/stream/removeModerator",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"removeModerator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getModerators",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getModerators/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getModerators",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBlocked",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/stream/getBlocked/662d0074200dc2992b4a3dfc",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"stream",
+								"getBlocked",
+								"662d0074200dc2992b4a3dfc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendInvite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGI1YzA2M2E5ZmRhYmQ4MTRhZjcxZCIsImlhdCI6MTcxNjIxNDgxMH0.zuH92zNznK8Md7Oo4pZ6LsXeHg-pEmIZfRd096-o9XA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"664b4df6dd48e4ffa5045a58\",\r\n    \"streamid\": \"664b7855c89b72bfe5664818\",\r\n    \"channel\":\"ok\",\r\n    \"token\":\"ok\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/sendInvite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"sendInvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendAudianceInvite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGM2Y2FkMmI1NmI1ZTUyYjU4OGFjZCIsImlhdCI6MTcxNjI5NzQ3NH0.RuraVWLzvzVWav67wqu3X1GhhZr0rV68HaXXMYphbrg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664c6cad2b56b5e52b588acd\",\r\n    \"senderid\":\"664b5c063a9fdabd814af71d\",\r\n    \"streamid\":\"664b7855c89b72bfe5664818\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/stream/sendAudianceInvite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"stream",
+								"sendAudianceInvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "requestToSpeak",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/requestToSpeak",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"requestToSpeak"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approveSpeakingRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"requesterid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/approveSpeakingRequest",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"approveSpeakingRequest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "denySpeakingRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"requesterid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/denySpeakingRequest",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"denySpeakingRequest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getSpeakingRequests",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/getSpeakingRequests/664343a99d8835ffe07c3d2e?voicemeetid=667ab7df327a4317c879ba7a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"getSpeakingRequests",
+								"664343a99d8835ffe07c3d2e"
+							],
+							"query": [
+								{
+									"key": "voicemeetid",
+									"value": "667ab7df327a4317c879ba7a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "muteSpeaker",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\",\r\n    \"muteType\":\"hard\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/muteSpeaker",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"muteSpeaker"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unmuteSpeaker",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/unmuteSpeaker",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"unmuteSpeaker"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "assignCoHost",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/assignCoHost",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"assignCoHost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "assignModerator",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/assignModerator",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"assignModerator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "moveToListener",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/moveToListener",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"moveToListener"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeFromSpace",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/removeFromSpace",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"removeFromSpace"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "banUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"targetUserid\":\"664f3b1eb5cba769fd3f2e0a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/banUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"banUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reportUserInSpace",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"reportedUserid\":\"664f3b1eb5cba769fd3f2e0a\",\r\n    \"reason\":\"User was being inappropriate\",\r\n    \"reportType\":\"harassment\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/reportUserInSpace",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"reportUserInSpace"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reactWithEmoji",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"emoji\":\"👍\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/reactWithEmoji",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"reactWithEmoji"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "shareRoom",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/shareRoom",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"shareRoom"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "endVoiceChat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/endVoiceChat",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"endVoiceChat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pinMessage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxODEwNzczNX0.SAYdMqd1doNiINIy741GcSFYRh-aBuLn11rFReCRBZM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"664343a99d8835ffe07c3d2e\",\r\n    \"voicemeetid\":\"667ab7df327a4317c879ba7a\",\r\n    \"messageid\":\"65b538fa9920ad455e37dcec\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/voicemeet/pinMessage",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"voicemeet",
+								"pinMessage"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "searchUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.frenzone.live/admin/searchUsers/2/1/hamza",
+							"protocol": "https",
+							"host": [
+								"api",
+								"frenzone",
+								"live"
+							],
+							"path": [
+								"admin",
+								"searchUsers",
+								"2",
+								"1",
+								"hamza"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicip}}/admin/getAllUsers",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"admin",
+								"getAllUsers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "broadcast",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"message\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/admin/broadcast",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"admin",
+								"broadcast"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setVerified",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65ce4b3742fc2247b540b6b3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/admin/setVerified",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"admin",
+								"setVerified"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "liveAccess",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"660a97de6398d13b1ea48a2f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/admin/liveAccess",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"admin",
+								"liveAccess"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ban",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"65ce4b0f42fc2247b540b6a7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/admin/ban",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"admin",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "form",
+			"item": [
+				{
+					"name": "contactUs",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"Test Username 2\",\r\n    \"email\":\"Test Email 2\",\r\n    \"phonenumber\":\"Test Phonenumber 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/form/contactUs",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"form",
+								"contactUs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "agencyForm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{publicip}}/form/agencyForm",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"form",
+								"agencyForm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "activity",
+			"item": [
+				{
+					"name": "getActivities",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njk5MjlkNWE0N2IzYTBkMGUzYTBkZiIsImlhdCI6MTcyMzEyNTc5NH0.pk1_B9ebOQTC-_a0TBn5GFTAwG8fOAus5go5ATENzes",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicip}}/activity/getActivities/66953e3bd564b2e2fea35f77/1/10",
+							"host": [
+								"{{publicip}}"
+							],
+							"path": [
+								"activity",
+								"getActivities",
+								"66953e3bd564b2e2fea35f77",
+								"1",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getActivities Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NGM2Y2FkMmI1NmI1ZTUyYjU4OGFjZCIsImlhdCI6MTcxNjM4MjcwNn0.R9R9cKRzIvimqCPVsh8fQTBDnkRpBpSQf8aUAvbUoWI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/activity/deleteActivity",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"activity",
+								"deleteActivity"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "songList",
+			"item": [
+				{
+					"name": "songList",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://54.234.189.148:4000/song/songList",
+							"protocol": "http",
+							"host": [
+								"54",
+								"234",
+								"189",
+								"148"
+							],
+							"port": "4000",
+							"path": [
+								"song",
+								"songList"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "gifts",
+			"item": [
+				{
+					"name": "createGift",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "price",
+									"value": "100",
+									"type": "text"
+								},
+								{
+									"key": "giftImge",
+									"type": "file",
+									"src": "/D:/university/frenzone_backend/quote.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/gift/createGift",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"gift",
+								"createGift"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllGifts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/gift/getAllGifts?page=1&limit=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"gift",
+								"getAllGifts"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UploadBuldGift",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/gift/getAllGifts?page=1&limit=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"gift",
+								"getAllGifts"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "emptyGfits",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/gift/getAllGifts?page=1&limit=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"gift",
+								"getAllGifts"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "plaid",
+			"item": [
+				{
+					"name": "createLinkToken",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxNzg0MTI0N30.sNYmKge3bAVr8iVDkc_TQkAHu5mcBWl9JGGtceZkyeo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"663f4ac34c2c7d026de687de\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/plaid/createLinkToken",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"plaid",
+								"createLinkToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "exchangePublicToken",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjJmY2M1NzRiNjA3M2NmYTFlMTgxNiIsImlhdCI6MTcxNzg0MTI0N30.sNYmKge3bAVr8iVDkc_TQkAHu5mcBWl9JGGtceZkyeo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\": \"663f4ac34c2c7d026de687de\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/plaid/createLinkToken",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"plaid",
+								"createLinkToken"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "dynamicLink",
+			"item": [
+				{
+					"name": "createDynamicLink",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/dynamicLink/createDynamicLink",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"dynamicLink",
+								"createDynamicLink"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "version",
+			"item": [
+				{
+					"name": "updateVersion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"version\": \"1.0.12\",\r\n    \"os\": \"android\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://3.83.14.184:4000/version",
+							"protocol": "http",
+							"host": [
+								"3",
+								"83",
+								"14",
+								"184"
+							],
+							"port": "4000",
+							"path": [
+								"version"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getVersion",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/version/android",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"version",
+								"android"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGNlZDFjODJiNmU1YWQ3YjI4NWExNiIsImlhdCI6MTcxNDQ3NjM1Nn0.vUynhj9D7Fqoacbq3TpPw7RLNa4lEmMC17RfZqKMNJw",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "publicip",
+			"value": "http://44.201.199.174:4000",
+			"type": "string"
+		},
+		{
+			"key": "server",
+			"value": "http://34.224.27.230:4000",
+			"type": "string"
+		},
+		{
+			"key": "local-idx",
+			"value": "https://4000-idx-frenzone-backend-1717226055028.cluster-7ubberrabzh4qqy2g4z7wgxuw2.cloudworkstations.dev/",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,3 @@
+top live streamers based on the number of time they came live and show there list on the all users list api.
+
+secondly, make the work of serperate gifting value of the stream to be returned

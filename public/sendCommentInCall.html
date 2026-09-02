@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender</title>
+</head>
+<body>
+
+    <input type = "text" id="comment">
+    <button onclick="sendComment()">Send</button>
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script> 
+    <script>
+        const senderid = "6662fcc574b6073cfa1e1816" 
+        const callid = "664618cf3b6e1398f3c25602"
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        function sendComment() {
+            const textInput = document.getElementById('comment')
+            const text = textInput.value
+            if(!text) return
+
+            socket.emit("likeCall",{
+                senderid,
+                callid,
+                text
+            })
+        }
+
+        socket.on("newLikeInCall", data => {
+            console.log(data);
+        })
+    </script>
+</body>
+</html>

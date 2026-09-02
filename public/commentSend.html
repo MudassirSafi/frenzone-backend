@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender</title>
+</head>
+<body>
+
+    <input type = "text" id="comment">
+    <button onclick="sendComment()">Send</button>
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script> 
+    <script>
+        const senderid = "65ce4b0f42fc2247b540b6a7" 
+        const streamid = "6615984f3875d7d3f85e2217"
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        function sendComment() {
+            const textInput = document.getElementById('comment')
+            const text = textInput.value
+            if(!text) return
+
+            socket.emit("sendCommentInStream",{
+                senderid,
+                streamid,
+                text
+            })
+        }
+    </script>
+</body>
+</html>

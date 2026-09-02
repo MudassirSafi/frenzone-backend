@@ -1,0 +1,10 @@
+POST {{baseUrl}}/dynamicLink/createDynamicLink
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "link": "sldfj"
+}
+
+###
+

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender</title>
+</head>
+
+<body>
+    <input id = "message" type="text" placeholder="Enter Mesaage">
+    <input id = "deleteMessage" type="text" placeholder="Enter message id to delete">
+    <button onclick="sendMessage()">Send Message</button><br><br>
+    <button onclick="deleteMessage()">Del Message</button><br><br>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const senderid = "66def677b0ad05e79a72dd6a" 
+        const receiverid = "68693aa8ef84c5b75346bf68"
+        const socket = io("http://44.206.194.217:4000", {  // http://44.206.194.217:4000
+            auth: {
+                userid: senderid
+            }
+        });
+
+        function sendMessage() {
+            const textInput = document.getElementById('message')
+            const message = textInput.value
+            if(!message) return
+
+            socket.emit("sendMessage",{
+                senderid,
+                receiverid,
+                message,
+                replyof: "68319d48ca643d527946052b"
+            })
+        }
+
+
+        function deleteMessage() {
+            const id = document.getElementById('deleteMessage')
+            const chatid = id.value
+            if(!chatid) return
+
+            socket.emit("deleteMessage", {
+                senderid,
+                receiverid,
+                chatid,
+            })
+        }
+
+        
+        socket.on("seenMessage", (data) => {
+            console.log("seenMessage: ", data);
+        })
+
+        socket.on("newMessageInClub", (data) => {
+            console.log("newMessageInClub: ", data);
+        })
+
+        
+        socket.on("deliveredMessage", (data) => {
+            console.log("deliveredMessage: ", data);
+        })
+
+        
+        socket.on("messageDeleted", (data) => {
+            console.log("messageDeleted: ", data);
+        })
+
+        
+        socket.on("newMediaInClub", (data) => {
+            console.log("newMediaInClub: ", data);
+        })
+    </script>
+</body>
+
+</html>

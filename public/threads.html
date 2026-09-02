@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thread</title>
+    
+</head>
+
+<body>
+    <div id = "display"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+
+        const senderid = "65ce4b0f42fc2247b540b6a7" 
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        const threads = new Map()
+
+        async function intital(){
+            const response = await fetch('http://localhost:4000/chat/getThreads/65ce4b0f42fc2247b540b6a7');
+            const data = await response.json();
+            console.log(data)
+            await data.threads.map((thread)=>{
+                threads.set(thread._id,thread)
+            })
+            updateDisplay()
+        }
+
+
+        intital()
+
+
+        socket.on("newThread",(data)=>{
+            threads.set(data._id,data)
+            updateDisplay()
+        })
+
+        socket.on("threadUpdate", async (data) => {
+            let thread = threads.get(data._id)
+
+            if(data.participants){
+                thread.participants[0].is_online = data.participants[0].is_online
+                thread.participants[1].is_online = data.participants[1].is_online
+            }
+            thread.last_message = data.last_message,
+            thread.last_message_sender_id = data.last_message_sender_id,
+            thread.last_message_Username = data.last_message_Username,
+            thread.last_message_timestamp = data.last_message_timestamp
+            thread.contentType = data.contentType
+
+            threads.set(data._id,thread)
+            updateDisplay()
+        });
+
+
+        socket.on("connect",()=>{
+            console.log("Connected To Server")
+        })
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from WebSocket server");
+        });
+
+        socket.on("error", (error) => {
+            console.error("WebSocket error:", error);
+        });
+
+        const updateDisplay = () =>{
+            const div = document.getElementById('display');
+            div.innerHTML = ''
+            threads.forEach((value, key) => {
+                
+                const entryDiv = document.createElement('div');
+                value = JSON.stringify(value)
+                entryDiv.textContent = `${value} --- End Of Thread`;
+                div.appendChild(entryDiv);
+            });
+        }
+        
+    </script>
+</body>
+
+</html>

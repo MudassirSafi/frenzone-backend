@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver</title>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const senderid = "65ce4b5542fc2247b540b6bf"
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        socket.on("newBlockInStream",(data)=>{
+            console.log(data)
+        })
+
+        socket.on("newUnblockInStream",(data)=>{
+            console.log(data)
+        })
+
+    </script>
+</body>
+</html>

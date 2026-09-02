@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Hamza</title>
+</head>
+
+<body>
+
+    <input type="text" id="message" placeholder="Enter Text" />
+    <button id="sendBtn">SendToAll</button>
+    <button id="sendBtn2">SendtoOne</button>
+    <input type="text" id="Receiver" placeholder="Enter Receiver" />
+    <div id="chat"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const sentBtn = document.getElementById("sendBtn")
+        const messageInput = document.getElementById("message")
+        const senderid = "663f4ac34c2c7d026de687de" 
+        const receiverid = "65bf5043349bd0f8d4e5b5ad"
+        const status = document.getElementById("status")
+        const chatDiv = document.getElementById("chat");
+
+        const socket = io("http://localhost:4000", {
+                auth: {
+                    userid:senderid
+                }
+            });
+
+
+        sendBtn.addEventListener("click", (e) => {
+            const message = messageInput.value;
+            if (message.trim() !== "") {
+                appendMessage("You: " + message);
+                socket.emit("sendMessage", { senderid, receiverid, message });
+                messageInput.value = "";
+            }
+        })
+
+        // Event listener for when a message is received from the server
+        socket.on("newMessage", (data) => {
+            // Display the received message in the chat UI
+            console.log(data.senderid)
+        });
+
+        socket.on("connect",()=>{
+            console.log("Connected To Server")
+        })
+
+        // Event listener for when the connection is closed
+        socket.on("disconnect", () => {
+            console.log("Disconnected from WebSocket server");
+        });
+
+
+        socket.on("userStatusChange", (data) => {
+            if (data.includes("65b7bc5d71d31bb7801a8562")) {
+                status.textContent = "Online"
+            } else {
+                status.textContent = "Offline"
+            }
+        })
+
+        // Event listener for errors
+        socket.on("error", (error) => {
+            console.error("WebSocket error:", error);
+        });
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Admin side</title>
+</head>
+<body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const userid = "664f3a75b5cba769fd3f2df2"
+        const streamid = "6655a2809ce8d15ee81c5cc0";
+        const socket = io("http://localhost:4000", {
+            auth: {
+                userid: userid
+            }
+        });
+
+      socket.on("newBroadcasterRequest", (data) => {
+        var acceptButton = document.createElement("button");
+        acceptButton.innerText = "Accept Request";
+        document.body.appendChild(acceptButton);
+
+        var rejectButton = document.createElement("button");
+        rejectButton.innerText = "Reject Request";
+        document.body.appendChild(rejectButton);
+
+        acceptButton.addEventListener("click", e=>{
+          socket.emit("acceptBroadcasterRequest", {
+            userid: data.userid,
+            streamid: data.streamid
+          })
+        })
+
+        rejectButton.addEventListener("click", e=>{
+          socket.emit("rejectBroadcasterRequest", {
+            userid: data.userid,
+            streamid: data.streamid
+          })
+        })
+      });
+
+
+    </script>
+</body>
+</html>

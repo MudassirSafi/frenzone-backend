@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver</title>
+</head>
+
+<body>
+    <div id="display"></div>
+    <input type="text" id="userid">
+    <!-- <input type="text" id="callid"> -->
+    <!-- <input type="text" id="sendAction"> -->
+    <button id="seen">connect socket</button>
+    <div id="status">Disconnected</div>
+    
+    <div id="data"></div>
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        var userid = ""
+        var socketUrl = "http://44.206.194.217:4000"
+        var map = new Map()
+        var socket = null
+        var subscribeSockets = ["newUserJoined", "memberCount", "threadUpdate", "userMute", "newBroadcasterRequest", "acceptedBroadcasterRequest", "rejectedBroadcasterRequest", "newModerator", "removedModerator", "newBlockInStream", "newUnblockInStream", "streamActionReceive", "streamended"];
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector("#userid").focus()
+        })
+
+        function connect(){
+            var input = document.querySelector("#userid")
+            if(input.value == userid){
+                return;
+            }
+            userid = input.value;
+    
+            if(userid.trim() != ""){
+                socket = io(socketUrl, {
+                    auth: {
+                        userid
+                    }
+                });
+            }
+            
+            subscribeSockets.map(socketName => {
+                socket.on(socketName, (data) => {
+                    console.log(`${socketName}: `, data);
+                    document.querySelector("#data").innerHTML +=
+                    `
+                    <h2>${socketName}</h2>
+                    <pre style="background:#f4f4f4; padding:10px; border-radius:6px; white-space:pre-wrap; word-wrap:break-word;">
+                        ${JSON.stringify(data, null, 2)}
+                    </pre>
+                    `
+                })
+            })
+    
+            document.querySelector("#status").innerHTML = "Connected"
+        }
+
+        // document.querySelector("#sendAction").addEventListener("click", (e)=>{
+        //     var input= document.querySelector("#callid");
+        //     var value = input.value
+        //     if(value.trim() != "" && socket){
+        //         socket.emit("actionSendInVoiceMeet",{
+        //             streamid: value,
+        //             action,
+        //             userid
+        //         })
+        //     }else{
+        //         alert("socket not connected yet!")
+        //     }
+        // })
+
+        document.querySelector("#seen").addEventListener("click", connect)   
+        document.querySelector("#seen").addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            connect()
+        }
+    });
+    </script>
+</body>
+
+</html>

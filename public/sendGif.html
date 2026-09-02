@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send Gif</title>
+  </head>
+  <body>
+    <button url="url/of/flower-gif" gift-id="66558bcc7f49770bcaa0360b">Flower GIF</button>
+    <button url="url/of/car-gif" gift-id="6651c65065657f6686e76806">Car GIF</button>
+    <button url="url/of/animal-gif" gift-id="6651c65665657f6686e7680a">Animal GIF</button>
+    <button url="url/of/running-gif" gift-id="6651c65a65657f6686e7680c">Running GIF</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+      const userid = "6657925a4221546f2bff71e3";
+      const streamid = "66c9fd554c4081f890a2343f";
+      const socket = io("http://localhost:4000", {
+        auth: {
+          userid: userid,
+        },
+      });
+
+      document.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", (e) => {
+          socket.emit("sendGiftInStream", {
+            streamid,
+            giftid: e.target.getAttribute("gift-id"),
+            userid,
+            streamer: "6669929d5a47b3a0d0e3a0df"
+          });
+        });
+      });
+
+      socket.on("lowBalance", (data)=>{
+        alert("low balance")
+      })
+
+      socket.on("memberCount", (data)=>{
+        console.log("memberCount: ", data);
+      })
+    </script>
+  </body>
+</html>

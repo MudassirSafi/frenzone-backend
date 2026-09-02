@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frezone Live – Backend Status</title>
+
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #020617;
+            --primary: #6366f1;
+            --success: #22c55e;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Inter, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(1200px 600px at 50% -20%, #1e293b, var(--bg));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 480px;
+            width: 90%;
+        }
+
+        .card {
+            background: linear-gradient(180deg, #020617, #020617);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .status {
+            margin-top: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .info {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .env {
+            background: rgba(99, 102, 241, 0.12);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            color: #c7d2fe;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <img src="./frenzone-logo.png" alt="Frezone Logo" width="32" height="32" />
+                <div>
+                    <h1>Frezone Live</h1>
+                    <div class="subtitle">Backend Service Status</div>
+                </div>
+            </div>
+
+            <div class="status">
+                <div class="dot"></div>
+                <div class="status-text">
+                    Backend is running and healthy
+                </div>
+            </div>
+
+            <div class="info">
+                This service is active and responding normally. All background
+                processes, APIs, and integrations are operational.
+                You can safely use the application or connect client services.
+            </div>
+
+            <div class="footer">
+                <span>© <span id="year"></span> Frezone</span>
+                <span class="env">LIVE</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

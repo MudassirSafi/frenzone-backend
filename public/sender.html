@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender</title>
+</head>
+
+<body>
+    <input type="text" id="textInput" placeholder="Enter Message">
+    <input type="text" id="delId" placeholder="Enter Del message id">
+    <button onclick="sendMessage()">sendMessageInClub</button>
+    <button onclick="delMessage()">delet message</button>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        const senderid = "660ced1c82b6e5ad7b285a16"
+        const receiverid = ""
+        const clubid = "6630dd70bee18ea9a806da77"
+
+        const socket = io("http://44.201.199.174:4000", {
+            auth: {
+                userid: senderid
+            }
+        });
+
+        function sendMessage() {
+            const messageid = "1"
+            const textInput = document.getElementById('textInput')
+            const message = textInput.value
+            if(!message) return
+
+            socket.emit("sendMessageInClub",{
+                messageid,
+                senderid,
+                clubid,
+                message
+            })
+        }
+
+        function delMessage() {
+            const textInput = document.getElementById('delId')
+            const chatid = textInput.value
+            if(!chatid) return
+
+            socket.emit("deleteMessage",{
+                senderid,
+                receiverid,
+                chatid
+            })
+        }
+
+        socket.on("newMessageInClub",async(data)=>{
+            console.log(data)
+        })
+
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sheesX.Frenzone",
+      "sha256_cert_fingerprints": [
+        "BC:0D:31:25:0F:7F:66:95:38:46:15:60:F4:53:78:AB:55:6B:7B:7B:C4:5B:BD:B0:67:B3:5C:B3:70:8E:67:DD"
+      ]
+    }
+  }
+]
