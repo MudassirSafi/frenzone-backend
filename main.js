@@ -4275,12 +4275,28 @@ const Voicemeet = require("./models/voicemeetModel");
 const globalTransactionRoutes = require("./routes/globalTransactionRoutes");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const adminApiRoutes = require("./routes/adminApiRoutes");
+const {
+  creatorApplicationRoutes,
+  adminCreatorAgencyRoutes,
+} = require("./routes/creator/creatorApplicationRoutes");
+const {
+  agencyRoutes,
+  adminAgencyRoutes,
+} = require("./routes/agency/agencyRoutes");
+const coinRoutes = require("./routes/coins/coinRoutes");
+const referralRoutes = require("./routes/referral/referralRoutes");
 
 // routes
 
 app.use("/admin", adminRoutes);
 app.use("/admin-auth", adminAuthRoutes);
 app.use("/admin-api", adminApiRoutes);
+app.use("/admin-api/creator-agency", adminCreatorAgencyRoutes);
+app.use("/admin-api/creator-agency/agencies", adminAgencyRoutes);
+app.use("/creator/application", creatorApplicationRoutes);
+app.use("/agency", agencyRoutes);
+app.use("/coins", coinRoutes);
+app.use("/referral", referralRoutes);
 app.use("/auth", authRoutes);
 app.use("/post", postRoutes);
 app.use("/user", userRoutes);
