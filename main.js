@@ -4279,6 +4279,7 @@ const {
   creatorApplicationRoutes,
   adminCreatorAgencyRoutes,
 } = require("./routes/creator/creatorApplicationRoutes");
+const creatorDashboardRoutes = require("./routes/creator/creatorDashboardRoutes");
 const {
   agencyRoutes,
   adminAgencyRoutes,
@@ -4294,6 +4295,7 @@ app.use("/admin-api", adminApiRoutes);
 app.use("/admin-api/creator-agency", adminCreatorAgencyRoutes);
 app.use("/admin-api/creator-agency/agencies", adminAgencyRoutes);
 app.use("/creator/application", creatorApplicationRoutes);
+app.use("/creator", creatorDashboardRoutes);
 app.use("/agency", agencyRoutes);
 app.use("/coins", coinRoutes);
 app.use("/referral", referralRoutes);

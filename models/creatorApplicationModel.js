@@ -6,7 +6,6 @@ const creatorApplicationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     legal_name: {
       firstname: { type: String, required: true, trim: true },
@@ -64,10 +63,19 @@ creatorApplicationSchema.index(
   { user_id: 1 },
   {
     unique: true,
+    name: "uniq_active_creator_app",
     partialFilterExpression: {
       status: { $in: ["pending", "more_info_required", "approved"] },
     },
   }
 );
 
-module.exports = mongoose.model("CreatorApplication", creatorApplicationSchema);
+const CreatorApplication = mongoose.model("CreatorApplication", creatorApplicationSchema);
+
+CreatorApplication.init()
+  .then(() => {
+    CreatorApplication.syncIndexes().catch(() => {});
+  })
+  .catch(() => {});
+
+module.exports = CreatorApplication;
