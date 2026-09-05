@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const Wallet = require("../models/walletModel");
 const Otp = require("../models/otpModel");
 const Verification = require("../models/verificationModel");
+const CreatorApplication = require("../models/creatorApplicationModel");
+const AgencyMember = require("../models/agencyMemberModel");
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
 const smsOtp = require("../models/smsOtpModel");
@@ -158,7 +160,14 @@ const loginUser = async (req, res) => {
     if (!email || !password) {
       throw Error("All Fields must be filled");
     }
-    const user = await User.findOne({ email });
+    const cleanEmail = String(email).trim();
+    const user = await User.findOne({
+      $or: [
+        { email: cleanEmail.toLowerCase() },
+        { email: cleanEmail },
+        { email: { $regex: new RegExp(`^${cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") } }
+      ]
+    });
 
     if (!user) {
       throw Error("User Not Found");
@@ -194,6 +203,31 @@ console.log("url:", url);
 console.log("url:", url);
 
     userObject["profilePicture"] = url;
+
+    // Authoritatively resolve creator standing & agency membership
+    try {
+      const [creatorApp, agencyMembership] = await Promise.all([
+        CreatorApplication.findOne({ user_id: user._id })
+          .select("status createdAt")
+          .sort({ createdAt: -1 })
+          .lean(),
+        AgencyMember.findOne({ user_id: user._id, status: "active" })
+          .populate("agency_id", "agency_name status")
+          .lean(),
+      ]);
+
+      userObject.creatorStatus = creatorApp ? creatorApp.status : "none";
+      userObject.creatorApplicationId = creatorApp ? creatorApp._id : null;
+      userObject.agencyMembership = agencyMembership || null;
+      userObject.isCreator = creatorApp?.status === "approved" || Boolean(user.liveAccess && user.isVerified);
+      userObject.isAgencyMember = Boolean(agencyMembership);
+      userObject.role = agencyMembership
+        ? `AGENCY_${agencyMembership.role?.toUpperCase()}`
+        : (creatorApp?.status === "approved" ? "CREATOR" : "USER");
+    } catch (resolveErr) {
+      console.warn("Could not resolve roles on login:", resolveErr.message);
+    }
+
     res.status(200).json({ user: userObject, token, url });
   } catch (error) {
     res.status(400).json({ error: error.message });

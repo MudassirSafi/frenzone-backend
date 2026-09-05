@@ -2,6 +2,8 @@ const User = require("../../models/userModel");
 const Wallet = require("../../models/walletModel");
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const AgencyMember = require("../../models/agencyMemberModel");
+const Agency = require("../../models/agencyModel");
+const Referral = require("../../models/referralModel");
 const { aws, getNewUsername } = require("../../helpers/otherHelpers");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const jwt = require("jsonwebtoken");
@@ -81,7 +83,17 @@ const logoutUser = (req, res) => {
  * @access Public
  */
 const webSignupUser = catchAsyncError(async (req, res) => {
-  const { firstname, lastname, email, password, username: requestedUsername } = req.body;
+  const {
+    firstname,
+    lastname,
+    email,
+    password,
+    username: requestedUsername,
+    referralCode,
+    accountType,
+    agencyName,
+    country,
+  } = req.body;
 
   if (!email || !password || !firstname) {
     return res.status(400).json({
@@ -129,6 +141,58 @@ const webSignupUser = catchAsyncError(async (req, res) => {
   // Create associated wallet record
   const wallet = await Wallet.create({ userid: user._id });
   await User.findByIdAndUpdate(user._id, { walletid: wallet._id });
+
+  // If registering as an Agency account, automatically create Agency & AgencyMember owner record
+  let agency = null;
+  if (accountType?.toLowerCase() === "agency" || agencyName) {
+    const rawAgencyName = String(agencyName || `${firstname}'s Agency`).trim();
+    const regNum = `FZ-AG-${Date.now().toString().slice(-6).toUpperCase()}`;
+
+    agency = await Agency.create({
+      agency_name: rawAgencyName,
+      country: country ? String(country).trim() : "United States",
+      business_address: "Frenzone Agency Network",
+      registration_number: regNum,
+      main_contact: {
+        name: `${firstname} ${lastname || ""}`.trim() || username,
+        email: normalizedEmail,
+      },
+      owner_user_id: user._id,
+      status: "approved",
+    });
+
+    await AgencyMember.create({
+      agency_id: agency._id,
+      user_id: user._id,
+      role: "owner",
+      status: "active",
+    });
+  }
+
+  // Link referral record if registered through a referral link
+  if (referralCode && typeof referralCode === "string") {
+    const trimmedCode = referralCode.trim();
+    const referrer = await User.findOne({
+      $or: [
+        { referralCode: trimmedCode },
+        { app_user_id: trimmedCode },
+        { username: trimmedCode.toLowerCase() },
+      ],
+    }).select("_id");
+
+    if (referrer && referrer._id.toString() !== user._id.toString()) {
+      try {
+        await Referral.create({
+          referrer_id: referrer._id,
+          referred_user_id: user._id,
+          referral_code: trimmedCode,
+          status: "registered",
+        });
+      } catch (err) {
+        console.error("Failed to link referral during signup:", err.message);
+      }
+    }
+  }
 
   const token = createToken(user._id);
   const userObject = user.toObject();

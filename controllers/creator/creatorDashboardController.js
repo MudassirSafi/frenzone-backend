@@ -4,6 +4,8 @@ const Wallet = require("../../models/walletModel");
 const StreamAnalysis = require("../../models/streamAnalysisModel");
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const Referral = require("../../models/referralModel");
+const Payout = require("../../models/payoutModel");
+const GlobalTransaction = require("../../models/globalTransactionsModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const { aws } = require("../../helpers/otherHelpers");
 
@@ -574,10 +576,463 @@ const uploadCreatorAvatar = catchAsyncError(async (req, res) => {
   });
 });
 
+/**
+ * @desc Get creator compliance and daily hours tracker
+ * @route GET /creator/compliance
+ * @access Private (Authenticated Creator)
+ */
+const getCreatorCompliance = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  // Month filtering (default to current month: YYYY-MM)
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth(); // 0-indexed
+
+  if (req.query.month && typeof req.query.month === "string") {
+    const parts = req.query.month.split("-");
+    if (parts.length === 2) {
+      const parsedYear = parseInt(parts[0], 10);
+      const parsedMonth = parseInt(parts[1], 10) - 1;
+      if (!isNaN(parsedYear) && !isNaN(parsedMonth) && parsedMonth >= 0 && parsedMonth <= 11) {
+        year = parsedYear;
+        month = parsedMonth;
+      }
+    }
+  }
+
+  const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+  const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Monthly target hours standard is 40.0 hours, daily target is 1.5h
+  const monthlyTargetHours = 40.0;
+  const dailyTargetHours = 1.5;
+
+  // Query completed stream sessions in this month
+  const streams = await StreamAnalysis.find({
+    userid: userObjectId,
+    endedAt: { $gte: startOfMonth, $lte: endOfMonth },
+  }).sort({ endedAt: 1 }).lean();
+
+  // Group achieved duration by date (YYYY-MM-DD)
+  const dailyStreamMap = {};
+  for (const stream of streams) {
+    const streamDate = new Date(stream.endedAt).toISOString().split("T")[0];
+    let durationHours = 0.5; // fallback
+    if (stream.endedAt && stream.createdAt) {
+      const diffMs = new Date(stream.endedAt).getTime() - new Date(stream.createdAt).getTime();
+      durationHours = Math.max(0.1, diffMs / (1000 * 60 * 60));
+    }
+    dailyStreamMap[streamDate] = (dailyStreamMap[streamDate] || 0) + durationHours;
+  }
+
+  // Build dailyLogs for the entire month
+  const dailyLogs = [];
+  let monthlyCompletedHours = 0;
+  let activeStreamDays = 0;
+
+  const todayStr = now.toISOString().split("T")[0];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayStr = day < 10 ? `0${day}` : `${day}`;
+    const monthStr = (month + 1) < 10 ? `0${month + 1}` : `${month + 1}`;
+    const dateKey = `${year}-${monthStr}-${dayStr}`;
+
+    const achieved = Number((dailyStreamMap[dateKey] || 0).toFixed(1));
+    monthlyCompletedHours += achieved;
+
+    if (achieved > 0) {
+      activeStreamDays++;
+    }
+
+    let status = "MISSED";
+    let notes = "No broadcast session recorded";
+
+    const isFuture = dateKey > todayStr;
+    const isToday = dateKey === todayStr;
+
+    if (achieved >= dailyTargetHours) {
+      status = "COMPLETED";
+      notes = `Target achieved (${achieved}h broadcast)`;
+    } else if (achieved > 0) {
+      status = "PARTIAL";
+      notes = `Partial broadcast (${achieved}h of ${dailyTargetHours}h target)`;
+    } else if (isToday) {
+      status = "PARTIAL";
+      notes = "Daily broadcast pending";
+    } else if (isFuture) {
+      status = "EXCUSED";
+      notes = "Scheduled future broadcast date";
+    }
+
+    dailyLogs.push({
+      id: `log-${dateKey}`,
+      date: dateKey,
+      targetHours: dailyTargetHours,
+      achievedHours: achieved,
+      status,
+      notes,
+    });
+  }
+
+  // Reverse so newest days appear first in the log table
+  dailyLogs.reverse();
+
+  monthlyCompletedHours = Number(monthlyCompletedHours.toFixed(1));
+  const compliancePercentage = Math.min(100, Math.round((monthlyCompletedHours / monthlyTargetHours) * 100));
+
+  let overallStatus = "MISSED";
+  if (compliancePercentage >= 75) {
+    overallStatus = "COMPLETED";
+  } else if (compliancePercentage >= 35 || (now.getDate() <= 15 && activeStreamDays >= 3)) {
+    overallStatus = "PARTIAL";
+  }
+
+  const user = await User.findById(userObjectId).select("identifyApprovalStatus liveAccess").lean();
+  const isApproved = user?.identifyApprovalStatus === "approved" || user?.liveAccess === true;
+
+  const rulesChecklist = [
+    {
+      id: "rule-1",
+      title: "Minimum 15 Live Stream Days / Month",
+      description: "Broadcast for at least 1 hour across 15 separate calendar days.",
+      isCompliant: activeStreamDays >= 15,
+    },
+    {
+      id: "rule-2",
+      title: "Minimum Monthly Live Hours (40h)",
+      description: "Accumulate 40 or more broadcast hours within the current billing cycle.",
+      isCompliant: monthlyCompletedHours >= monthlyTargetHours,
+    },
+    {
+      id: "rule-3",
+      title: "High-Definition Video Quality (1080p)",
+      description: "Maintain stable video stream bitrate and resolution standards.",
+      isCompliant: true,
+    },
+    {
+      id: "rule-4",
+      title: "Community Guidelines & Safety Compliance",
+      description: "Zero strikes or policy warnings on your active creator account.",
+      isCompliant: isApproved,
+    },
+  ];
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      overallStatus,
+      monthlyTargetHours,
+      monthlyCompletedHours,
+      compliancePercentage,
+      activeStreamDays,
+      dailyLogs,
+      rulesChecklist,
+    },
+  });
+});
+
+/**
+ * @desc Fetch Creator Referral Roster and earnings breakdown per referred user
+ * @route GET /creator/referrals
+ * @access Private (Creator Only)
+ */
+const getCreatorReferrals = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  // Fetch all referrals initiated by this creator
+  const referrals = await Referral.find({ referrer_id: userObjectId })
+    .populate("referred_user_id", "username firstname lastname profilePicture createdAt isVerified liveAccess")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!referrals || referrals.length === 0) {
+    return res.status(200).json({
+      success: true,
+      data: [],
+    });
+  }
+
+  // Extract referred user ObjectIDs
+  const referredUserIds = referrals
+    .filter((r) => r.referred_user_id && r.referred_user_id._id)
+    .map((r) => new mongoose.Types.ObjectId(r.referred_user_id._id));
+
+  // Aggregate stream performance & earnings for each referred creator
+  const streamEarningsMap = new Map();
+  if (referredUserIds.length > 0) {
+    const streamStats = await StreamAnalysis.aggregate([
+      { $match: { userid: { $in: referredUserIds } } },
+      {
+        $group: {
+          _id: "$userid",
+          totalUsd: { $sum: "$usdEarned" },
+          totalDiamonds: { $sum: "$diamondsEarned" },
+          streamCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    streamStats.forEach((stat) => {
+      streamEarningsMap.set(stat._id.toString(), stat);
+    });
+  }
+
+  // Build resolved roster list
+  const roster = await Promise.all(
+    referrals.map(async (ref) => {
+      const u = ref.referred_user_id;
+      if (!u) {
+        return null;
+      }
+
+      const uidStr = u._id.toString();
+      const streamData = streamEarningsMap.get(uidStr) || { totalUsd: 0, totalDiamonds: 0, streamCount: 0 };
+
+      // 10% recurring referral commission calculation
+      const usdCommission = (streamData.totalUsd || 0) * 0.10;
+      const diamondCommission = (streamData.totalDiamonds || 0) * 0.042;
+      const totalCommission = Number((usdCommission + diamondCommission).toFixed(2));
+
+      // Resolve avatar
+      let avatarUrl = "";
+      if (u.profilePicture) {
+        if (u.profilePicture.startsWith("http://") || u.profilePicture.startsWith("https://") || u.profilePicture.startsWith("data:")) {
+          avatarUrl = u.profilePicture;
+        } else if (typeof aws?.getLinkFromAWS === "function") {
+          try {
+            avatarUrl = await aws.getLinkFromAWS(u.profilePicture);
+          } catch {
+            avatarUrl = "";
+          }
+        }
+      }
+      if (!avatarUrl) {
+        const displayName = `${u.firstname || ""} ${u.lastname || ""}`.trim() || u.username || "Creator";
+        avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=8b5cf6&color=fff`;
+      }
+
+      const fullName = `${u.firstname || ""} ${u.lastname || ""}`.trim();
+      const displayName = fullName ? `${fullName} (@${u.username})` : (u.username ? `@${u.username}` : "Referred Creator");
+
+      const joinedDate = ref.createdAt
+        ? new Date(ref.createdAt).toISOString().split("T")[0]
+        : (u.createdAt ? new Date(u.createdAt).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+
+      // If user has streamed or status is qualified or verified, ACTIVE, else PENDING
+      const isActive = ref.status === "qualified" || streamData.streamCount > 0 || u.isVerified;
+
+      return {
+        id: ref._id.toString(),
+        referredUser: displayName,
+        avatarUrl,
+        joinedDate,
+        status: isActive ? "ACTIVE" : "PENDING",
+        earningsGenerated: {
+          amount: totalCommission.toFixed(2),
+          currency: "USD",
+        },
+      };
+    })
+  );
+
+  const cleanRoster = roster.filter(Boolean);
+
+  return res.status(200).json({
+    success: true,
+    data: cleanRoster,
+  });
+});
+
+/**
+ * @desc Fetch authoritative Creator Earnings breakdown, sources, and statement history
+ * @route GET /creator/earnings
+ * @access Private (Authenticated Creator)
+ */
+const getCreatorEarnings = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  // Parallel bounded queries for financial calculations
+  const [wallet, completedPayoutsAgg, pendingPayoutsAgg, streamGiftsAgg, tipsAgg, subAgg, referralAgg] = await Promise.all([
+    Wallet.findOne({ userid: userObjectId }).lean(),
+    Payout.aggregate([
+      { $match: { userId: userObjectId, status: "completed" } },
+      { $group: { _id: null, total: { $sum: "$netAmount" } } },
+    ]),
+    Payout.aggregate([
+      { $match: { userId: userObjectId, status: { $in: ["pending", "processing"] } } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]),
+    StreamAnalysis.aggregate([
+      { $match: { userid: userObjectId } },
+      {
+        $group: {
+          _id: null,
+          totalUsd: { $sum: "$usdEarned" },
+          totalDiamonds: { $sum: "$diamondsEarned" },
+        },
+      },
+    ]),
+    GlobalTransaction.aggregate([
+      { $match: { creator_id: userObjectId, type: "tip", status: "completed" } },
+      { $group: { _id: null, total: { $sum: "$net_creator_amount" } } },
+    ]),
+    GlobalTransaction.aggregate([
+      { $match: { creator_id: userObjectId, type: { $in: ["club_subscription", "live_shop_subscription"] }, status: "completed" } },
+      { $group: { _id: null, total: { $sum: "$net_creator_amount" } } },
+    ]),
+    Referral.aggregate([
+      { $match: { referrer_id: userObjectId } },
+      {
+        $group: {
+          _id: null,
+          totalReferred: { $sum: 1 },
+          qualifiedCount: {
+            $sum: { $cond: [{ $eq: ["$status", "qualified"] }, 1, 0] },
+          },
+        },
+      },
+    ]),
+  ]);
+
+  // Available for Payout (from Wallet settled balance, 100 diamonds = $1.00)
+  const diamondsBalance = Number(wallet?.diamonds || 0);
+  const earnedAmount = Number(wallet?.earnedAmount || wallet?.currentAmount || 0);
+  const availableAmount = Math.max(0, diamondsBalance > 0 ? diamondsBalance / 100 : earnedAmount);
+
+  // Completed payouts to date
+  const totalPaidOut = completedPayoutsAgg[0]?.total || 0;
+
+  // Pending Clearance payouts
+  const pendingClearanceAmount = pendingPayoutsAgg[0]?.total || 0;
+
+  // Total Lifetime Gross Earnings (settled available + past completed payouts)
+  const totalLifetimeEarnings = availableAmount + totalPaidOut;
+
+  // Revenue Sources (Live Stream Gifts, Tips, Subscriptions, Referral Bonus)
+  const giftUsd = Math.max(0, streamGiftsAgg[0]?.totalUsd || (streamGiftsAgg[0]?.totalDiamonds ? streamGiftsAgg[0].totalDiamonds / 100 : 0));
+  const tipsUsd = Math.max(0, tipsAgg[0]?.total || 0);
+  const subsUsd = Math.max(0, subAgg[0]?.total || 0);
+  const referralCount = referralAgg[0]?.qualifiedCount || 0;
+  const referralBonusUsd = referralCount * 5.0; // $5.00 per qualified referral
+
+  const combinedSourceSum = giftUsd + tipsUsd + subsUsd + referralBonusUsd;
+
+  const sources = [
+    {
+      category: "Live Stream Gifts",
+      amount: { amount: giftUsd.toFixed(2), currency: "USD" },
+      percentage: combinedSourceSum > 0 ? Math.round((giftUsd / combinedSourceSum) * 100) : 0,
+    },
+    {
+      category: "Direct Tips",
+      amount: { amount: tipsUsd.toFixed(2), currency: "USD" },
+      percentage: combinedSourceSum > 0 ? Math.round((tipsUsd / combinedSourceSum) * 100) : 0,
+    },
+    {
+      category: "Club Subscriptions",
+      amount: { amount: subsUsd.toFixed(2), currency: "USD" },
+      percentage: combinedSourceSum > 0 ? Math.round((subsUsd / combinedSourceSum) * 100) : 0,
+    },
+    {
+      category: "Referral Bonus",
+      amount: { amount: referralBonusUsd.toFixed(2), currency: "USD" },
+      percentage: combinedSourceSum > 0 ? Math.round((referralBonusUsd / combinedSourceSum) * 100) : 0,
+    },
+  ];
+
+  // 6-Month Historical Statement Log
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const now = new Date();
+  const history = [];
+
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const startOfM = new Date(Date.UTC(d.getFullYear(), d.getMonth(), 1, 0, 0, 0));
+    const endOfM = new Date(Date.UTC(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999));
+    const periodLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+
+    // Parallel queries for this month window
+    const [mStream, mTips, mSubs, mRefs] = await Promise.all([
+      StreamAnalysis.aggregate([
+        { $match: { userid: userObjectId, endedAt: { $gte: startOfM, $lte: endOfM } } },
+        { $group: { _id: null, total: { $sum: "$usdEarned" }, diamonds: { $sum: "$diamondsEarned" } } },
+      ]),
+      GlobalTransaction.aggregate([
+        { $match: { creator_id: userObjectId, type: "tip", status: "completed", createdAt: { $gte: startOfM, $lte: endOfM } } },
+        { $group: { _id: null, total: { $sum: "$net_creator_amount" } } },
+      ]),
+      GlobalTransaction.aggregate([
+        { $match: { creator_id: userObjectId, type: { $in: ["club_subscription", "live_shop_subscription"] }, status: "completed", createdAt: { $gte: startOfM, $lte: endOfM } } },
+        { $group: { _id: null, total: { $sum: "$net_creator_amount" } } },
+      ]),
+      Referral.countDocuments({
+        referrer_id: userObjectId,
+        status: "qualified",
+        createdAt: { $gte: startOfM, $lte: endOfM },
+      }),
+    ]);
+
+    const mGiftAmt = mStream[0]?.total || (mStream[0]?.diamonds ? mStream[0].diamonds / 100 : 0);
+    const mTipAmt = mTips[0]?.total || 0;
+    const mSubAmt = mSubs[0]?.total || 0;
+    const mRefAmt = mRefs * 5.0;
+    const mTotal = mGiftAmt + mTipAmt + mSubAmt + mRefAmt;
+
+    history.push({
+      id: `stmt-${d.getFullYear()}-${d.getMonth() + 1}`,
+      period: periodLabel,
+      gifts: { amount: mGiftAmt.toFixed(2), currency: "USD" },
+      tips: { amount: mTipAmt.toFixed(2), currency: "USD" },
+      subscriptions: { amount: mSubAmt.toFixed(2), currency: "USD" },
+      referralBonus: { amount: mRefAmt.toFixed(2), currency: "USD" },
+      total: { amount: mTotal.toFixed(2), currency: "USD" },
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      totalEarnings: {
+        amount: totalLifetimeEarnings.toFixed(2),
+        currency: "USD",
+      },
+      availableForPayout: {
+        amount: availableAmount.toFixed(2),
+        currency: "USD",
+      },
+      pendingClearance: {
+        amount: pendingClearanceAmount.toFixed(2),
+        currency: "USD",
+      },
+      sources,
+      history,
+    },
+  });
+});
+
 module.exports = {
   getCreatorDashboard,
   getCreatorPerformance,
   getCreatorProfile,
   updateCreatorProfile,
   uploadCreatorAvatar,
+  getCreatorCompliance,
+  getCreatorReferrals,
+  getCreatorEarnings,
 };

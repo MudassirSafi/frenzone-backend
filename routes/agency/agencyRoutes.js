@@ -7,8 +7,12 @@ const { requireAdmin } = require("../../middleware/requireAdmin");
 const {
   applyAgency,
   getAgencyProfile,
+  getAgencyDashboard,
   inviteCreator,
   getAgencyRoster,
+  getAgencyInvitations,
+  cancelAgencyInvitation,
+  getAgencyPerformance,
   respondAgencyInvite,
   getAdminAgencies,
   reviewAgency,
@@ -20,7 +24,17 @@ router.post("/invite/respond", requireAuth, respondAgencyInvite);
 
 // ── PROTECTED AGENCY PORTAL APIS (Requires Active Agency Membership) ──
 router.get("/profile", requireAuth, requireAgencyAuth, getAgencyProfile);
+router.get("/dashboard", requireAuth, requireAgencyAuth, getAgencyDashboard);
 router.get("/roster", requireAuth, requireAgencyAuth, getAgencyRoster);
+router.get("/invitations", requireAuth, requireAgencyAuth, getAgencyInvitations);
+router.delete(
+  "/invitations/:id",
+  requireAuth,
+  requireAgencyAuth,
+  requireAgencyRole(["owner", "manager"]),
+  cancelAgencyInvitation
+);
+router.get("/performance", requireAuth, requireAgencyAuth, getAgencyPerformance);
 router.post(
   "/invite-creator",
   requireAuth,
