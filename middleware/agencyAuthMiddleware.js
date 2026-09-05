@@ -24,7 +24,7 @@ const requireAgencyAuth = async (req, res, next) => {
     }
 
     const agency = member.agency_id;
-    if (agency.status !== "approved") {
+    if (agency.status === "rejected" || agency.status === "suspended") {
       return res.status(403).json({
         success: false,
         error: `Agency access restricted. Organization status is currently '${agency.status}'.`,
