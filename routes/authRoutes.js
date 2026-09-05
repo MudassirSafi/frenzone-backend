@@ -22,6 +22,18 @@ const {
   getLamVerifyDataById,
   linkedinSignup
 } = require("../controllers/authController");
+const requireAuth = require("../middleware/requireAuth");
+const {
+  getAuthMe,
+  logoutUser,
+  webSignupUser,
+} = require("../controllers/auth/webAuthController");
+
+// Web Portal Auth Routes
+router.get("/me", requireAuth, getAuthMe);
+router.post("/logout", logoutUser);
+router.post("/web-signup", webSignupUser);
+
 router.post("/login", loginUser);
 router.post("/appleLogin", appleLogin);
 router.post("/twitterLogin", twitterLogin);
@@ -41,5 +53,5 @@ router.post("/loginAdmin", loginAdmin);
 router.get("/getLamVerifyData", getLamVerifyData);
 router.get("/getLamVerifyDataById/:userid", getLamVerifyDataById);
 router.patch("/togglePaymentVerified/:id", togglePaymentVerified);
-router.post("/linkedinSignup", linkedinSignup)
+router.post("/linkedinSignup", linkedinSignup);
 module.exports = router;

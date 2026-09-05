@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
   instagramUrl: { type: String, default: "" },
   linkedinUrl: { type: String, default: "" },
   WebsiteUrl: { type: String, default: "" },
+  tiktokUrl: { type: String, default: "" },
+  youtubeUrl: { type: String, default: "" },
+  country: { type: String, default: "" },
+  language: { type: String, default: "" },
   bio: { type: String, default: "" },
 
   walletid: { type: mongoose.Schema.Types.ObjectId },
