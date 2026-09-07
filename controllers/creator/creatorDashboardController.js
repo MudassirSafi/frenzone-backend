@@ -5,6 +5,8 @@ const StreamAnalysis = require("../../models/streamAnalysisModel");
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const Referral = require("../../models/referralModel");
 const Payout = require("../../models/payoutModel");
+const CreatorAgencyRelationship = require("../../models/creatorAgencyRelationshipModel");
+const Agency = require("../../models/agencyModel");
 const GlobalTransaction = require("../../models/globalTransactionsModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const { aws } = require("../../helpers/otherHelpers");
@@ -392,7 +394,7 @@ const getCreatorProfile = catchAsyncError(async (req, res) => {
       country: user.country || app?.demographics?.country || "",
       language: user.language || app?.demographics?.language || "English",
       bio: user.bio || user.about || "",
-      avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      avatarUrl: avatarUrl || "",
       categories,
       socialLinks: {
         instagram: user.instagramUrl || app?.content_profile?.social_links?.instagram || "",
@@ -456,6 +458,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
     if (trimmedPhone.length > 30) {
       return res.status(400).json({ success: false, error: "Phone number must not exceed 30 characters." });
     }
+    if (trimmedPhone && !/^[+0-9\s().-]{5,30}$/.test(trimmedPhone)) {
+      return res.status(400).json({ success: false, error: "Invalid phone number format." });
+    }
     userUpdates.phone = trimmedPhone;
     appUpdates["contact_info.phone"] = trimmedPhone;
   }
@@ -478,11 +483,27 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
     appUpdates["demographics.language"] = trimmedLanguage;
   }
 
+  const isValidSocialLink = (val) => {
+    if (!val) return true;
+    if (val.startsWith("http://") || val.startsWith("https://")) {
+      try {
+        const u = new URL(val);
+        return u.protocol === "http:" || u.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }
+    return /^@?[a-zA-Z0-9._-]+$/.test(val);
+  };
+
   if (socialLinks && typeof socialLinks === "object") {
     if (socialLinks.instagram !== undefined) {
       const ig = String(socialLinks.instagram).trim();
       if (ig.length > 200) {
         return res.status(400).json({ success: false, error: "Instagram URL must not exceed 200 characters." });
+      }
+      if (ig && !isValidSocialLink(ig)) {
+        return res.status(400).json({ success: false, error: "Invalid Instagram URL or handle format." });
       }
       userUpdates.instagramUrl = ig;
       appUpdates["content_profile.social_links.instagram"] = ig;
@@ -492,6 +513,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
       if (tt.length > 200) {
         return res.status(400).json({ success: false, error: "TikTok URL must not exceed 200 characters." });
       }
+      if (tt && !isValidSocialLink(tt)) {
+        return res.status(400).json({ success: false, error: "Invalid TikTok URL or handle format." });
+      }
       userUpdates.tiktokUrl = tt;
       appUpdates["content_profile.social_links.tiktok"] = tt;
     }
@@ -499,6 +523,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
       const yt = String(socialLinks.youtube).trim();
       if (yt.length > 200) {
         return res.status(400).json({ success: false, error: "YouTube URL must not exceed 200 characters." });
+      }
+      if (yt && !isValidSocialLink(yt)) {
+        return res.status(400).json({ success: false, error: "Invalid YouTube URL or handle format." });
       }
       userUpdates.youtubeUrl = yt;
       appUpdates["content_profile.social_links.youtube"] = yt;
@@ -1026,6 +1053,76 @@ const getCreatorEarnings = catchAsyncError(async (req, res) => {
   });
 });
 
+/**
+ * @desc Get authenticated creator's affiliated Agency or pending partnership invitation
+ * @route GET /creator/agency
+ * @access Private (Authenticated Creator)
+ */
+const getCreatorAgency = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const rel = await CreatorAgencyRelationship.findOne({
+    creator_id: userObjectId,
+    status: { $in: ["active", "pending_creator_consent", "pending_admin_approval"] },
+  })
+    .populate("agency_id")
+    .populate("invited_by", "firstname lastname username email")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!rel || !rel.agency_id) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        hasAgency: false,
+        status: "NONE",
+        rawStatus: "none",
+        agencyName: "",
+        agencyId: "",
+        contractStartDate: "",
+        managerName: "",
+        managerEmail: "",
+        commissionSplitRate: 20,
+      },
+    });
+  }
+
+  const agency = rel.agency_id;
+  const manager = rel.invited_by || agency.main_contact;
+
+  let status = "NONE";
+  if (rel.status === "active") status = "ACTIVE";
+  else if (rel.status === "pending_creator_consent") status = "PENDING_CONSENT";
+  else if (rel.status === "pending_admin_approval") status = "PENDING_ADMIN";
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      hasAgency: true,
+      invitationId: String(rel._id),
+      status,
+      rawStatus: rel.status,
+      agencyId: String(agency._id),
+      agencyName: agency.agency_name || "Partner Agency",
+      contractStartDate: rel.joined_at
+        ? new Date(rel.joined_at).toISOString().split("T")[0]
+        : (rel.createdAt ? new Date(rel.createdAt).toISOString().split("T")[0] : "Recently"),
+      managerName: manager
+        ? `${manager.firstname || ""} ${manager.lastname || ""}`.trim() || manager.name || manager.username
+        : "Agency Manager",
+      managerEmail: manager?.email || agency.main_contact?.email || "agency@frenzone.live",
+      commissionSplitRate: 20,
+      country: agency.country || "United States",
+      website: agency.website || "",
+    },
+  });
+});
+
 module.exports = {
   getCreatorDashboard,
   getCreatorPerformance,
@@ -1035,4 +1132,5 @@ module.exports = {
   getCreatorCompliance,
   getCreatorReferrals,
   getCreatorEarnings,
+  getCreatorAgency,
 };

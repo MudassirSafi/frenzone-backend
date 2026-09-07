@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  firebaseUid: { type: String, unique: true, sparse: true, index: true },
   username: { type: String, required: true },
   firstname: { type: String, default: "" },
   lastname: { type: String, default: "" },
@@ -8,7 +9,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, default: "" },
   address: { type: String, default: "" },
   dob: { type: String, default: "" },
-  password: { type: String },
+  password: { type: String, default: "" },
   appleId: { type: String },
   twitterId: { type: String },
   about: { type: String, default: "" },

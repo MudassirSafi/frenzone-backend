@@ -1,3 +1,4 @@
+const admin = require("../../config/firebaseAdmin");
 const User = require("../../models/userModel");
 const Wallet = require("../../models/walletModel");
 const CreatorApplication = require("../../models/creatorApplicationModel");
@@ -10,7 +11,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_String);
+  return jwt.sign({ id }, process.env.JWT_String || "frenzone_fallback_secret");
 };
 
 /**
@@ -78,7 +79,8 @@ const logoutUser = (req, res) => {
 };
 
 /**
- * @desc Direct web signup for Frenzone Creator/Agency web portal users
+ * @desc Direct web signup for Frenzone Creator/Agency web portal users.
+ * Supports Firebase ID tokens and legacy registration.
  * @route POST /auth/web-signup
  * @access Public
  */
@@ -86,33 +88,79 @@ const webSignupUser = catchAsyncError(async (req, res) => {
   const {
     firstname,
     lastname,
-    email,
+    email: rawEmail,
     password,
     username: requestedUsername,
     referralCode,
     accountType,
     agencyName,
     country,
+    idToken: bodyIdToken,
   } = req.body;
 
-  if (!email || !password || !firstname) {
+  let firebaseUid = null;
+  let verifiedEmail = rawEmail ? String(rawEmail).trim().toLowerCase() : null;
+
+  // Check if authorization header or body has Firebase ID token
+  const authHeader = req.headers.authorization;
+  const rawToken = bodyIdToken || (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
+
+  if (rawToken && admin.apps?.length) {
+    try {
+      const decoded = await admin.auth().verifyIdToken(rawToken);
+      if (decoded?.uid) {
+        firebaseUid = decoded.uid;
+        if (decoded.email) {
+          verifiedEmail = String(decoded.email).trim().toLowerCase();
+        }
+      }
+    } catch {
+      // If token verification fails, allow fallback if email & password are provided
+      if (!password && !rawEmail) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid or expired Firebase authentication token.",
+        });
+      }
+    }
+  }
+
+  if (!verifiedEmail || !firstname) {
     return res.status(400).json({
       success: false,
-      error: "First name, email, and password are required.",
+      error: "First name and email are required.",
     });
   }
 
-  const normalizedEmail = String(email).trim().toLowerCase();
-  const existingUser = await User.findOne({ email: normalizedEmail });
-  if (existingUser) {
-    return res.status(400).json({
-      success: false,
-      error: "An account with this email address already exists.",
+  const normalizedEmail = verifiedEmail;
+  let user = await User.findOne({
+    $or: [
+      ...(firebaseUid ? [{ firebaseUid }] : []),
+      { email: normalizedEmail },
+    ],
+  });
+
+  if (user) {
+    // Link firebaseUid to existing user if not yet linked
+    if (firebaseUid && !user.firebaseUid) {
+      user.firebaseUid = firebaseUid;
+      await user.save();
+    }
+    const token = rawToken || createToken(user._id);
+    const userObject = user.toObject();
+    delete userObject.password;
+    return res.status(200).json({
+      success: true,
+      message: "Account synchronized successfully.",
+      user: userObject,
+      token,
     });
   }
 
   // Generate unique username
-  let username = requestedUsername ? String(requestedUsername).trim().toLowerCase().replace(/[^a-z0-9_]/g, "") : "";
+  let username = requestedUsername
+    ? String(requestedUsername).trim().toLowerCase().replace(/[^a-z0-9_]/g, "")
+    : "";
   if (!username) {
     username = await getNewUsername(`${firstname} ${lastname || ""}`);
   } else {
@@ -122,18 +170,23 @@ const webSignupUser = catchAsyncError(async (req, res) => {
     }
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  let hashedPassword = "";
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    hashedPassword = await bcrypt.hash(password, salt);
+  }
+
   const tag = username.replace(/\s+/g, "");
 
-  const user = await User.create({
+  user = await User.create({
+    ...(firebaseUid ? { firebaseUid } : {}),
     firstname: String(firstname).trim(),
     lastname: String(lastname || "").trim(),
     email: normalizedEmail,
     username,
     password: hashedPassword,
     tag,
-    loginFrom: "Web",
+    loginFrom: firebaseUid ? "Firebase" : "Web",
     app_user_id: username,
     onboarding: { active: true },
   });
@@ -194,7 +247,7 @@ const webSignupUser = catchAsyncError(async (req, res) => {
     }
   }
 
-  const token = createToken(user._id);
+  const token = rawToken || createToken(user._id);
   const userObject = user.toObject();
   delete userObject.password;
 

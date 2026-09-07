@@ -12,7 +12,9 @@ const {
   getCreatorCompliance,
   getCreatorReferrals,
   getCreatorEarnings,
+  getCreatorAgency,
 } = require("../../controllers/creator/creatorDashboardController");
+const { respondAgencyInvite } = require("../../controllers/agency/agencyController");
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -27,5 +29,7 @@ router.get("/referrals", requireAuth, requireCreatorAuth, getCreatorReferrals);
 router.get("/profile", requireAuth, requireCreatorAuth, getCreatorProfile);
 router.patch("/profile", requireAuth, requireCreatorAuth, updateCreatorProfile);
 router.post("/avatar", requireAuth, requireCreatorAuth, upload.single("image"), uploadCreatorAvatar);
+router.get("/agency", requireAuth, requireCreatorAuth, getCreatorAgency);
+router.post("/agency/respond", requireAuth, requireCreatorAuth, respondAgencyInvite);
 
 module.exports = router;

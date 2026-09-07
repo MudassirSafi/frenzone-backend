@@ -5,6 +5,7 @@ const CreatorAgencyRelationship = require("../../models/creatorAgencyRelationshi
 const User = require("../../models/userModel");
 const StreamAnalysis = require("../../models/streamAnalysisModel");
 const Payout = require("../../models/payoutModel");
+const Referral = require("../../models/referralModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const { aws } = require("../../helpers/otherHelpers");
 
@@ -227,9 +228,9 @@ const getAgencyDashboard = catchAsyncError(async (req, res) => {
  * @access Private (Agency Owner / Manager)
  */
 const inviteCreator = catchAsyncError(async (req, res) => {
-  const { username, email } = req.body;
-  if (!username && !email) {
-    return res.status(400).json({ success: false, error: "Creator username or email is required" });
+  const { username, email, creatorId } = req.body;
+  if (!username && !email && !creatorId) {
+    return res.status(400).json({ success: false, error: "Creator username, email, or ID is required" });
   }
 
   const cleanUsername = username ? String(username).trim().toLowerCase() : "";
@@ -237,6 +238,7 @@ const inviteCreator = catchAsyncError(async (req, res) => {
 
   const targetUser = await User.findOne({
     $or: [
+      ...(creatorId ? [{ _id: creatorId }] : []),
       ...(cleanUsername ? [{ username: cleanUsername }] : []),
       ...(cleanEmail ? [{ email: cleanEmail }] : []),
     ],
@@ -299,12 +301,14 @@ const getAgencyRoster = catchAsyncError(async (req, res) => {
       const creator = rel.creator_id;
       if (!creator) return null;
 
-      let avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80";
-      if (creator.profilePicture && typeof aws?.getLinkFromAWS === "function") {
+      let avatarUrl = "";
+      if (creator.profilePicture?.startsWith("http") || creator.profilePicture?.startsWith("data:")) {
+        avatarUrl = creator.profilePicture;
+      } else if (creator.profilePicture && typeof aws?.getLinkFromAWS === "function") {
         try {
           avatarUrl = await aws.getLinkFromAWS(creator.profilePicture);
         } catch {
-          // fallback
+          avatarUrl = "";
         }
       }
 
@@ -706,6 +710,217 @@ const reviewAgency = catchAsyncError(async (req, res) => {
   });
 });
 
+/**
+ * @desc Search registered Frenzone creators with live relationship status
+ * @route GET /agency/creators/search
+ * @access Private (Agency Member)
+ */
+const searchCreators = catchAsyncError(async (req, res) => {
+  const agencyId = req.agency._id;
+  const q = String(req.query.q || "").trim();
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit, 10) || 10));
+
+  if (!q || q.length < 2) {
+    return res.status(200).json({ success: true, creators: [], data: [], total: 0 });
+  }
+
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(escaped, "i");
+
+  // Query User collection: match username, firstname, lastname, or email
+  const filter = {
+    $or: [
+      { username: regex },
+      { firstname: regex },
+      { lastname: regex },
+      { email: regex },
+    ],
+  };
+
+  const [users, total] = await Promise.all([
+    User.find(filter)
+      .select("_id username firstname lastname email profilePicture category")
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    User.countDocuments(filter),
+  ]);
+
+  const userIds = users.map((u) => u._id);
+
+  // Find relationships for these users to determine status
+  const existingRels = await CreatorAgencyRelationship.find({
+    creator_id: { $in: userIds },
+    status: { $in: ["pending_creator_consent", "pending_admin_approval", "active"] },
+  }).lean();
+
+  const relMap = new Map();
+  for (const r of existingRels) {
+    relMap.set(String(r.creator_id), r);
+  }
+
+  const results = users.map((u) => {
+    const rel = relMap.get(String(u._id));
+    let relationshipStatus = "none"; // can invite
+    let isCurrentAgency = false;
+
+    if (rel) {
+      isCurrentAgency = String(rel.agency_id) === String(agencyId);
+      if (rel.status === "active") {
+        relationshipStatus = isCurrentAgency ? "connected" : "unavailable";
+      } else if (rel.status === "pending_creator_consent") {
+        relationshipStatus = isCurrentAgency ? "pending_consent" : "unavailable";
+      } else if (rel.status === "pending_admin_approval") {
+        relationshipStatus = isCurrentAgency ? "pending_admin" : "unavailable";
+      }
+    }
+
+    return {
+      id: String(u._id),
+      username: u.username,
+      name: `${u.firstname || ""} ${u.lastname || ""}`.trim() || u.username,
+      email: u.email || "",
+      avatarUrl: u.profilePicture || "",
+      category: u.category || "Live Streaming",
+      relationshipStatus,
+      isInvitedByMe: isCurrentAgency && rel?.status === "pending_creator_consent",
+      canInvite: relationshipStatus === "none",
+    };
+  });
+
+  return res.status(200).json({
+    success: true,
+    creators: results,
+    data: results,
+    total,
+    page,
+    limit,
+  });
+});
+
+/**
+ * @desc Get authoritative Agency Commissions breakdown & settlements
+ * @route GET /agency/commissions
+ * @access Private (Agency Member)
+ */
+const getAgencyCommissions = catchAsyncError(async (req, res) => {
+  const agencyId = req.agency._id;
+  const now = new Date();
+  const startOfMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0));
+  const endOfMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentPeriod = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+  // Find active creators in this agency
+  const activeRelationships = await CreatorAgencyRelationship.find({
+    agency_id: agencyId,
+    status: "active",
+  })
+    .populate("creator_id", "username firstname lastname email profilePicture")
+    .lean();
+
+  let totalGross = 0;
+  const breakdownPerCreator = [];
+
+  for (const rel of activeRelationships) {
+    const creator = rel.creator_id;
+    if (!creator) continue;
+
+    const streamAgg = await StreamAnalysis.aggregate([
+      {
+        $match: {
+          userid: creator._id,
+          endedAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalUsd: { $sum: "$usdEarned" },
+          totalDiamonds: { $sum: "$diamondsEarned" },
+        },
+      },
+    ]);
+
+    const gross = streamAgg[0]?.totalUsd || (streamAgg[0]?.totalDiamonds ? streamAgg[0].totalDiamonds / 100 : 0);
+    const commEarned = gross * 0.20;
+    totalGross += gross;
+
+    breakdownPerCreator.push({
+      creatorId: String(creator._id),
+      creatorName: `${creator.firstname || ""} ${creator.lastname || ""}`.trim() || creator.username,
+      username: creator.username,
+      grossEarned: {
+        amount: gross.toFixed(2),
+        currency: "USD",
+      },
+      agencyCommissionRatePercentage: 20,
+      commissionEarned: {
+        amount: commEarned.toFixed(2),
+        currency: "USD",
+      },
+    });
+  }
+
+  const agencySplitAmount = totalGross * 0.20;
+  const platformFees = 0; // standard platform fee
+  const netPayoutAmount = agencySplitAmount - platformFees;
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      period: currentPeriod,
+      grossRevenue: {
+        amount: totalGross.toFixed(2),
+        currency: "USD",
+      },
+      agencyCommissionRatePercentage: 20,
+      platformFees: {
+        amount: platformFees.toFixed(2),
+        currency: "USD",
+      },
+      netPayoutAmount: {
+        amount: netPayoutAmount.toFixed(2),
+        currency: "USD",
+      },
+      breakdownPerCreator,
+    },
+  });
+});
+
+/**
+ * @desc Get authenticated Agency referral link, code, and sub-agency network metrics
+ * @route GET /agency/referrals
+ * @access Private (Agency Member)
+ */
+const getAgencyReferrals = catchAsyncError(async (req, res) => {
+  const agency = req.agency;
+  const ownerUserId = agency.owner_user_id;
+
+  const ownerUser = await User.findById(ownerUserId).select("referralCode app_user_id username");
+  let referralCode = ownerUser?.referralCode || agency.registration_number || ownerUser?.username || "AGENCY-APEX";
+  const referralLink = `https://frenzone.live/agency-apply?ref=${referralCode}`;
+
+  // Count referrals attributed to this agency owner
+  const [totalReferred, qualifiedCount] = await Promise.all([
+    Referral.countDocuments({ referrer_id: ownerUserId }),
+    Referral.countDocuments({ referrer_id: ownerUserId, status: "qualified" }),
+  ]);
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      referralCode,
+      referralLink,
+      totalReferred,
+      qualifiedCount,
+      commissionBonusPercentage: 10,
+    },
+  });
+});
+
 module.exports = {
   applyAgency,
   getAgencyProfile,
@@ -718,4 +933,7 @@ module.exports = {
   respondAgencyInvite,
   getAdminAgencies,
   reviewAgency,
+  searchCreators,
+  getAgencyCommissions,
+  getAgencyReferrals,
 };

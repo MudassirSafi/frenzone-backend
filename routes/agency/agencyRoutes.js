@@ -16,6 +16,9 @@ const {
   respondAgencyInvite,
   getAdminAgencies,
   reviewAgency,
+  searchCreators,
+  getAgencyCommissions,
+  getAgencyReferrals,
 } = require("../../controllers/agency/agencyController");
 
 // ── AGENCY APPLICATION & CREATOR CONSENT APIS ──
@@ -27,6 +30,9 @@ router.get("/profile", requireAuth, requireAgencyAuth, getAgencyProfile);
 router.get("/dashboard", requireAuth, requireAgencyAuth, getAgencyDashboard);
 router.get("/roster", requireAuth, requireAgencyAuth, getAgencyRoster);
 router.get("/invitations", requireAuth, requireAgencyAuth, getAgencyInvitations);
+router.get("/creators/search", requireAuth, requireAgencyAuth, searchCreators);
+router.get("/commissions", requireAuth, requireAgencyAuth, getAgencyCommissions);
+router.get("/referrals", requireAuth, requireAgencyAuth, getAgencyReferrals);
 router.delete(
   "/invitations/:id",
   requireAuth,
