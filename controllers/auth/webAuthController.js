@@ -259,8 +259,173 @@ const webSignupUser = catchAsyncError(async (req, res) => {
   });
 });
 
+/**
+ * @desc Production-Grade 1-Click Demo Impersonation Login
+ * Idempotently seeds/retrieves verified Demo Creator or Demo Agency accounts,
+ * generating a valid signed JWT session token with authentic MongoDB collections.
+ * @route POST /auth/demo-login
+ * @access Public
+ */
+const demoLoginUser = catchAsyncError(async (req, res) => {
+  const { role } = req.body;
+  const normalizedRole = String(role || "").trim().toUpperCase();
+
+  if (normalizedRole !== "CREATOR" && normalizedRole !== "AGENCY") {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid demo role. Allowed roles are 'CREATOR' or 'AGENCY'.",
+    });
+  }
+
+  if (normalizedRole === "CREATOR") {
+    const demoEmail = "demo.creator@frenzone.live";
+    let user = await User.findOne({ email: demoEmail });
+
+    if (!user) {
+      user = await User.create({
+        firstname: "Demo",
+        lastname: "Creator",
+        username: "demo_creator",
+        email: demoEmail,
+        loginFrom: "WebDemo",
+        app_user_id: "demo_creator",
+        liveAccess: true,
+        isVerified: true,
+        identifyApprovalStatus: "approved",
+        onboarding: { active: true },
+      });
+      const wallet = await Wallet.create({ userid: user._id, balance: 1250 });
+      await User.findByIdAndUpdate(user._id, { walletid: wallet._id });
+    } else {
+      if (!user.liveAccess || !user.isVerified || user.identifyApprovalStatus !== "approved") {
+        user.liveAccess = true;
+        user.isVerified = true;
+        user.identifyApprovalStatus = "approved";
+        await user.save();
+      }
+    }
+
+    let creatorApp = await CreatorApplication.findOne({ user_id: user._id });
+    if (!creatorApp) {
+      creatorApp = await CreatorApplication.create({
+        user_id: user._id,
+        status: "approved",
+        full_name: "Demo Creator",
+        legal_name: { firstname: "Demo", lastname: "Creator" },
+        contact_info: { email: demoEmail, phone: "+15550192834" },
+        demographics: {
+          country: "United States",
+          language: "English",
+          dob: new Date("1998-04-12"),
+        },
+        content_profile: {
+          category: "lifestyle",
+          primary_platform: "Instagram",
+          social_links: { instagram: "@democreator" },
+          estimated_audience_size: 45000,
+        },
+        legal_agreements: { terms_accepted: true, accepted_at: new Date() },
+      });
+    } else if (creatorApp.status !== "approved") {
+      creatorApp.status = "approved";
+      await creatorApp.save();
+    }
+
+    const token = createToken(user._id);
+    const userObject = user.toObject();
+    delete userObject.password;
+
+    return res.status(200).json({
+      success: true,
+      message: "Authenticated as Demo Creator.",
+      token,
+      user: {
+        ...userObject,
+        role: "CREATOR",
+        isCreator: true,
+        creatorStatus: "approved",
+        creatorApplicationId: creatorApp._id,
+      },
+    });
+  }
+
+  if (normalizedRole === "AGENCY") {
+    const demoEmail = "demo.agency@frenzone.live";
+    let user = await User.findOne({ email: demoEmail });
+
+    if (!user) {
+      user = await User.create({
+        firstname: "Nexus",
+        lastname: "Agency",
+        username: "nexus_talent",
+        email: demoEmail,
+        loginFrom: "WebDemo",
+        app_user_id: "nexus_talent",
+        onboarding: { active: true },
+      });
+      const wallet = await Wallet.create({ userid: user._id, balance: 5000 });
+      await User.findByIdAndUpdate(user._id, { walletid: wallet._id });
+    }
+
+    let agency = await Agency.findOne({ owner_user_id: user._id });
+    if (!agency) {
+      agency = await Agency.create({
+        agency_name: "Nexus Talent Agency",
+        country: "United States",
+        business_address: "100 Broadway, New York, NY 10005",
+        registration_number: "FZ-AG-NEXUS-01",
+        main_contact: {
+          name: "Nexus Agency Administrator",
+          email: demoEmail,
+        },
+        owner_user_id: user._id,
+        status: "approved",
+        bank_account: {
+          bank_name: "JPMorgan Chase Bank, N.A.",
+          account_holder_name: "Nexus Talent Agency LLC",
+          account_number_masked: "•••• •••• •••• 4482",
+          account_number_last4: "4482",
+          swift_bic: "CHASUS33",
+          routing_number: "021000021",
+          currency: "USD",
+          payout_schedule: "MONTHLY_15TH",
+          status: "ACTIVE",
+          verified_at: new Date(),
+        },
+      });
+    }
+
+    let member = await AgencyMember.findOne({ user_id: user._id, agency_id: agency._id });
+    if (!member) {
+      member = await AgencyMember.create({
+        agency_id: agency._id,
+        user_id: user._id,
+        role: "owner",
+        status: "active",
+      });
+    }
+
+    const token = createToken(user._id);
+    const userObject = user.toObject();
+    delete userObject.password;
+
+    return res.status(200).json({
+      success: true,
+      message: "Authenticated as Demo Agency.",
+      token,
+      user: {
+        ...userObject,
+        role: "AGENCY_OWNER",
+        isAgencyMember: true,
+        agencyMembership: member,
+      },
+    });
+  }
+});
+
 module.exports = {
   getAuthMe,
   logoutUser,
   webSignupUser,
+  demoLoginUser,
 };

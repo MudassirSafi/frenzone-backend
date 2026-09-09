@@ -27,12 +27,14 @@ const {
   getAuthMe,
   logoutUser,
   webSignupUser,
+  demoLoginUser,
 } = require("../controllers/auth/webAuthController");
 
 // Web Portal Auth Routes
 router.get("/me", requireAuth, getAuthMe);
 router.post("/logout", logoutUser);
 router.post("/web-signup", webSignupUser);
+router.post("/demo-login", demoLoginUser);
 
 router.post("/login", loginUser);
 router.post("/appleLogin", appleLogin);
