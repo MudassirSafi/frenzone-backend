@@ -4561,6 +4561,14 @@ Link: <code>${fullUrl}</code>
 // Dynamic deep link route
 app.get("/:type(post|blink|profile)/:id", renderDeepLinkLanding);
 
+// Safe redirect for web referral links / landing visits hitting the API server
+app.get(["/join/:code", "/signup"], (req, res) => {
+  const code = req.params.code || req.query.ref || req.query.referralCode || "";
+  const frontendUrl = process.env.FRONTEND_URL || process.env.WEB_URL || "https://frenzone.live";
+  const target = code ? `${frontendUrl}/signup?ref=${encodeURIComponent(code)}` : `${frontendUrl}/signup`;
+  return res.redirect(302, target);
+});
+
 app.use("/", (req, res) => {
   res.status(400).send(`${req.method} Route ${req.path} not found !`);
 });

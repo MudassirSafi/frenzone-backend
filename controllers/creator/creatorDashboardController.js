@@ -190,7 +190,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       },
       totalViewers: followersCount + (agg.totalLikes || 0),
       referralCode,
-      referralLink: `https://frenzone.live/join/${referralCode}`,
+      referralLink: referralCode ? `${(process.env.FRONTEND_URL || process.env.WEB_URL || (req.headers.origin && !req.headers.origin.includes(":5000") ? req.headers.origin : "https://frenzone.live"))}/signup?ref=${encodeURIComponent(referralCode)}` : "",
       recentActivities,
       stats: {
         followersCount,
