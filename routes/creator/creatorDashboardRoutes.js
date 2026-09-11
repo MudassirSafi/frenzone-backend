@@ -13,6 +13,7 @@ const {
   getCreatorReferrals,
   getCreatorEarnings,
   getCreatorAgency,
+  getCreatorActivities,
 } = require("../../controllers/creator/creatorDashboardController");
 const { respondAgencyInvite } = require("../../controllers/agency/agencyController");
 
@@ -22,6 +23,7 @@ const upload = multer({
 });
 
 router.get("/dashboard", requireAuth, requireCreatorAuth, getCreatorDashboard);
+router.get("/activities", requireAuth, requireCreatorAuth, getCreatorActivities);
 router.get("/earnings", requireAuth, requireCreatorAuth, getCreatorEarnings);
 router.get("/performance", requireAuth, requireCreatorAuth, getCreatorPerformance);
 router.get("/compliance", requireAuth, requireCreatorAuth, getCreatorCompliance);

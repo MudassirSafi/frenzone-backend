@@ -6,6 +6,7 @@ const User = require("../../models/userModel");
 const StreamAnalysis = require("../../models/streamAnalysisModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const { aws } = require("../../helpers/otherHelpers");
+const { buildCanonicalReferralUrl } = require("../../helpers/canonicalUrlHelper");
 
 /**
  * @desc Fetch or generate unique referral code and canonical URL for authenticated user
@@ -32,22 +33,8 @@ const getReferralCode = catchAsyncError(async (req, res) => {
     await User.findByIdAndUpdate(userId, { referralCode: code });
   }
 
-  // Derive canonical frontend URL from environment or request origin
-  const frontendOrigin = req.headers.origin || req.headers.referer;
-  let baseUrl = process.env.FRONTEND_URL || process.env.WEB_URL;
-  if (!baseUrl) {
-    if (frontendOrigin && !frontendOrigin.includes(":5000")) {
-      try {
-        baseUrl = new URL(frontendOrigin).origin;
-      } catch {
-        baseUrl = "https://frenzone.live";
-      }
-    } else {
-      baseUrl = "https://frenzone.live";
-    }
-  }
-
-  const referralLink = `${baseUrl}/signup?ref=${encodeURIComponent(code)}`;
+  // Derive canonical frontend URL from environment or request origin (environment-aware)
+  const referralLink = buildCanonicalReferralUrl(code, req);
 
   let avatarUrl = "";
   if (user.profilePicture && typeof aws?.getLinkFromAWS === "function") {

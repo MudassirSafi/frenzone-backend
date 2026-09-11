@@ -6,6 +6,7 @@ if (!nodeBuffer.SlowBuffer) nodeBuffer.SlowBuffer = nodeBuffer.Buffer;
 
 const express = require("express");
 const connectDB = require("./db");
+const { buildCanonicalReferralUrl, getCanonicalFrontendUrl } = require("./helpers/canonicalUrlHelper");
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -4564,8 +4565,7 @@ app.get("/:type(post|blink|profile)/:id", renderDeepLinkLanding);
 // Safe redirect for web referral links / landing visits hitting the API server
 app.get(["/join/:code", "/signup"], (req, res) => {
   const code = req.params.code || req.query.ref || req.query.referralCode || "";
-  const frontendUrl = process.env.FRONTEND_URL || process.env.WEB_URL || "https://frenzone.live";
-  const target = code ? `${frontendUrl}/signup?ref=${encodeURIComponent(code)}` : `${frontendUrl}/signup`;
+  const target = code ? buildCanonicalReferralUrl(code, req) : `${getCanonicalFrontendUrl(req)}/signup`;
   return res.redirect(302, target);
 });
 
