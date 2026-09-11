@@ -56,6 +56,8 @@ const userSchema = new mongoose.Schema({
   presentBroadcasters: { type: [mongoose.Schema.Types.ObjectId], default: [] },
 
   tag: { type: String, default: "" },
+  referralCode: { type: String, default: "" },
+  referralScanCount: { type: Number, default: 0 },
   isAdminBlocked: { type: Boolean, default: false },
   paymentVerified: { type: Boolean, default: false },
   loginFrom: { type: String, default: "" },

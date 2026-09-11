@@ -1,5 +1,6 @@
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const User = require("../../models/userModel");
+const Referral = require("../../models/referralModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 
 /**
@@ -216,6 +217,16 @@ const reviewApplication = catchAsyncError(async (req, res) => {
     userUpdate.identifyApprovalStatus = "approved";
     userUpdate.identityVerified = true;
     userUpdate.liveAccess = true;
+
+    // Transition referral record from registered to qualified upon creator approval
+    try {
+      await Referral.updateOne(
+        { referred_user_id: application.user_id, status: { $ne: "qualified" } },
+        { status: "qualified", qualification_timestamp: new Date() }
+      );
+    } catch (refErr) {
+      console.warn("Referral qualification lifecycle update warning:", refErr.message);
+    }
   } else if (status === "rejected") {
     userUpdate.identifyApprovalStatus = "permanent_rejected";
   } else if (status === "more_info_required") {
