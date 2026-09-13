@@ -56,6 +56,28 @@ const agencySchema = new mongoose.Schema(
       reviewed_at: { type: Date, default: null },
       review_notes: { type: String, default: "" },
     },
+    bank_account: {
+      bank_name: { type: String, default: "", trim: true },
+      account_holder_name: { type: String, default: "", trim: true },
+      account_number_masked: { type: String, default: "", trim: true },
+      account_number_last4: { type: String, default: "", trim: true },
+      swift_bic: { type: String, default: "", trim: true },
+      routing_number: { type: String, default: "", trim: true },
+      iban: { type: String, default: "" , trim: true },
+      currency: { type: String, default: "USD", trim: true },
+      payout_schedule: {
+        type: String,
+        enum: ["MONTHLY_15TH", "BI_WEEKLY"],
+        default: "MONTHLY_15TH",
+      },
+      status: {
+        type: String,
+        enum: ["UNREGISTERED", "PENDING_VERIFICATION", "ACTIVE", "REJECTED"],
+        default: "UNREGISTERED",
+      },
+      verified_at: { type: Date, default: null },
+      updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    },
   },
   { timestamps: true }
 );

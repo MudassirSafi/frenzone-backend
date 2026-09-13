@@ -6,6 +6,7 @@ if (!nodeBuffer.SlowBuffer) nodeBuffer.SlowBuffer = nodeBuffer.Buffer;
 
 const express = require("express");
 const connectDB = require("./db");
+const { buildCanonicalReferralUrl, getCanonicalFrontendUrl } = require("./helpers/canonicalUrlHelper");
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -4281,6 +4282,7 @@ const {
 } = require("./routes/creator/creatorApplicationRoutes");
 const creatorDashboardRoutes = require("./routes/creator/creatorDashboardRoutes");
 const creatorSupportRoutes = require("./routes/creator/creatorSupportRoutes");
+const creatorMarketingRoutes = require("./routes/creator/creatorMarketingRoutes");
 const {
   agencyRoutes,
   adminAgencyRoutes,
@@ -4297,6 +4299,7 @@ app.use("/admin-api/creator-agency", adminCreatorAgencyRoutes);
 app.use("/admin-api/creator-agency/agencies", adminAgencyRoutes);
 app.use("/creator/application", creatorApplicationRoutes);
 app.use("/creator/support", creatorSupportRoutes);
+app.use("/creator/marketing", creatorMarketingRoutes);
 app.use("/creator", creatorDashboardRoutes);
 app.use("/agency", agencyRoutes);
 app.use("/coins", coinRoutes);
@@ -4558,6 +4561,13 @@ Link: <code>${fullUrl}</code>
 
 // Dynamic deep link route
 app.get("/:type(post|blink|profile)/:id", renderDeepLinkLanding);
+
+// Safe redirect for web referral links / landing visits hitting the API server
+app.get(["/join/:code", "/signup"], (req, res) => {
+  const code = req.params.code || req.query.ref || req.query.referralCode || "";
+  const target = code ? buildCanonicalReferralUrl(code, req) : `${getCanonicalFrontendUrl(req)}/signup`;
+  return res.redirect(302, target);
+});
 
 app.use("/", (req, res) => {
   res.status(400).send(`${req.method} Route ${req.path} not found !`);

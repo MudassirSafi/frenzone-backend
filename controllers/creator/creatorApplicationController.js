@@ -1,5 +1,7 @@
+const mongoose = require("mongoose");
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const User = require("../../models/userModel");
+const Referral = require("../../models/referralModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 
 /**
@@ -128,15 +130,65 @@ const getApplicationStatus = catchAsyncError(async (req, res) => {
     return res.status(401).json({ success: false, error: "Authentication required" });
   }
 
-  const application = await CreatorApplication.findOne({ user_id: userId })
-    .sort({ createdAt: -1 })
-    .lean();
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const [application, user] = await Promise.all([
+    CreatorApplication.findOne({ user_id: userObjectId })
+      .sort({ createdAt: -1 })
+      .lean(),
+    User.findById(userObjectId)
+      .select("username firstname lastname email isVerified liveAccess identifyApprovalStatus identifyApprovalMessage followers")
+      .lean(),
+  ]);
+
+  if (!user) {
+    return res.status(404).json({ success: false, error: "User account not found" });
+  }
+
+  // Security: Sanitize admin review details so internal review notes and admin IDs are never leaked to creators
+  let safeAdminReview = null;
+  if (application?.admin_review) {
+    safeAdminReview = {
+      reviewed_at: application.admin_review.reviewed_at || null,
+      more_info_requested_message: application.admin_review.more_info_requested_message || "",
+    };
+  }
+
+  const safeApp = application
+    ? {
+        _id: application._id,
+        status: application.status,
+        legal_name: application.legal_name,
+        contact_info: application.contact_info,
+        demographics: application.demographics,
+        content_profile: application.content_profile,
+        legal_agreements: {
+          terms_accepted: application.legal_agreements?.terms_accepted,
+          privacy_accepted: application.legal_agreements?.privacy_accepted,
+          accepted_at: application.legal_agreements?.accepted_at,
+        },
+        admin_review: safeAdminReview,
+        createdAt: application.createdAt,
+        updatedAt: application.updatedAt,
+      }
+    : null;
+
+  const isApprovedCreator = application?.status === "approved";
+  const hasFollowers = Array.isArray(user.followers) && user.followers.length >= 1000;
+  const isVerified = Boolean(user.isVerified);
+  const liveAccess = Boolean(user.liveAccess);
+  const isLiveEligible = liveAccess && (isApprovedCreator || isVerified || hasFollowers);
 
   return res.status(200).json({
     success: true,
     hasApplied: Boolean(application),
     status: application ? application.status : "none",
-    application: application || null,
+    application: safeApp,
+    complianceStatus: user.identifyApprovalStatus || (isApprovedCreator ? "approved" : "none"),
+    complianceMessage: user.identifyApprovalMessage || "",
+    liveAccess,
+    isVerified,
+    isLiveEligible,
   });
 });
 
@@ -216,6 +268,16 @@ const reviewApplication = catchAsyncError(async (req, res) => {
     userUpdate.identifyApprovalStatus = "approved";
     userUpdate.identityVerified = true;
     userUpdate.liveAccess = true;
+
+    // Transition referral record from registered to qualified upon creator approval
+    try {
+      await Referral.updateOne(
+        { referred_user_id: application.user_id, status: { $ne: "qualified" } },
+        { status: "qualified", qualification_timestamp: new Date() }
+      );
+    } catch (refErr) {
+      console.warn("Referral qualification lifecycle update warning:", refErr.message);
+    }
   } else if (status === "rejected") {
     userUpdate.identifyApprovalStatus = "permanent_rejected";
   } else if (status === "more_info_required") {

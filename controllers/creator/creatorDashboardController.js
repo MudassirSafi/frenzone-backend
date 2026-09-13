@@ -5,9 +5,14 @@ const StreamAnalysis = require("../../models/streamAnalysisModel");
 const CreatorApplication = require("../../models/creatorApplicationModel");
 const Referral = require("../../models/referralModel");
 const Payout = require("../../models/payoutModel");
+const CreatorAgencyRelationship = require("../../models/creatorAgencyRelationshipModel");
+const Agency = require("../../models/agencyModel");
 const GlobalTransaction = require("../../models/globalTransactionsModel");
+const ReferralScan = require("../../models/referralScanModel");
+const Activity = require("../../models/activityModel");
 const { catchAsyncError } = require("../../helpers/catchAsyncError");
 const { aws } = require("../../helpers/otherHelpers");
+const { buildCanonicalReferralUrl } = require("../../helpers/canonicalUrlHelper");
 
 function formatRelativeTime(date) {
   if (!date) return "Recently";
@@ -79,11 +84,6 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       .sort({ endedAt: -1 })
       .limit(5)
       .lean(),
-    Referral.find({ referrer_id: userObjectId })
-      .select("status createdAt")
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .lean(),
   ]);
 
   if (!user) {
@@ -105,61 +105,8 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
   const diamondsBalance = wallet?.diamond || agg.totalDiamonds || 0;
   const estimatedEarnings = (diamondsBalance * 0.42).toFixed(2);
 
-  // Derive dynamic activities timeline from actual database events
-  const activityItems = [];
-  (recentStreams || []).forEach((stream) => {
-    activityItems.push({
-      id: `stream-${stream._id}`,
-      title: stream.likes > 0
-        ? `Completed Live Stream (${stream.likes.toLocaleString()} likes)`
-        : "Completed Live Stream Session",
-      timestamp: formatRelativeTime(stream.endedAt),
-      rawDate: stream.endedAt || new Date(),
-      type: "stream",
-    });
-    if (stream.giftCoins > 0 || stream.giftsReceived > 0) {
-      activityItems.push({
-        id: `earning-${stream._id}`,
-        title: stream.giftCoins > 0
-          ? `Earned ${stream.giftCoins.toLocaleString()} gift coins`
-          : `Received ${stream.giftsReceived} gifts in stream`,
-        timestamp: formatRelativeTime(stream.endedAt),
-        rawDate: stream.endedAt || new Date(),
-        type: "earning",
-      });
-    }
-  });
-
-  (recentReferrals || []).forEach((refDoc) => {
-    activityItems.push({
-      id: `ref-${refDoc._id}`,
-      title: refDoc.status === "qualified"
-        ? "Referred Creator Qualified & Active"
-        : "New Referred Creator Joined",
-      timestamp: formatRelativeTime(refDoc.createdAt),
-      rawDate: refDoc.createdAt || new Date(),
-      type: "referral",
-    });
-  });
-
-  if (app && app.status === "approved") {
-    activityItems.push({
-      id: `compliance-${app._id}`,
-      title: "Creator Program Verification Approved",
-      timestamp: formatRelativeTime(app.updatedAt || app.createdAt),
-      rawDate: app.updatedAt || app.createdAt || new Date(),
-      type: "compliance",
-    });
-  }
-
-  // Sort chronologically descending and take top 5
-  activityItems.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
-  const recentActivities = activityItems.slice(0, 5).map(({ id, title, timestamp, type }) => ({
-    id,
-    title,
-    timestamp,
-    type,
-  }));
+  // Derive rich dynamic activities timeline from actual database events
+  const recentActivities = await buildCreatorActivityFeed(userObjectId, app, referralCode);
 
   const liveHours = Math.round((agg.totalStreams || 0) * 1.5);
   const liveHoursTarget = 40;
@@ -188,7 +135,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       },
       totalViewers: followersCount + (agg.totalLikes || 0),
       referralCode,
-      referralLink: `https://frenzone.live/join/${referralCode}`,
+      referralLink: referralCode ? buildCanonicalReferralUrl(referralCode, req) : "",
       recentActivities,
       stats: {
         followersCount,
@@ -392,7 +339,7 @@ const getCreatorProfile = catchAsyncError(async (req, res) => {
       country: user.country || app?.demographics?.country || "",
       language: user.language || app?.demographics?.language || "English",
       bio: user.bio || user.about || "",
-      avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      avatarUrl: avatarUrl || "",
       categories,
       socialLinks: {
         instagram: user.instagramUrl || app?.content_profile?.social_links?.instagram || "",
@@ -456,6 +403,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
     if (trimmedPhone.length > 30) {
       return res.status(400).json({ success: false, error: "Phone number must not exceed 30 characters." });
     }
+    if (trimmedPhone && !/^[+0-9\s().-]{5,30}$/.test(trimmedPhone)) {
+      return res.status(400).json({ success: false, error: "Invalid phone number format." });
+    }
     userUpdates.phone = trimmedPhone;
     appUpdates["contact_info.phone"] = trimmedPhone;
   }
@@ -478,11 +428,27 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
     appUpdates["demographics.language"] = trimmedLanguage;
   }
 
+  const isValidSocialLink = (val) => {
+    if (!val) return true;
+    if (val.startsWith("http://") || val.startsWith("https://")) {
+      try {
+        const u = new URL(val);
+        return u.protocol === "http:" || u.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }
+    return /^@?[a-zA-Z0-9._-]+$/.test(val);
+  };
+
   if (socialLinks && typeof socialLinks === "object") {
     if (socialLinks.instagram !== undefined) {
       const ig = String(socialLinks.instagram).trim();
       if (ig.length > 200) {
         return res.status(400).json({ success: false, error: "Instagram URL must not exceed 200 characters." });
+      }
+      if (ig && !isValidSocialLink(ig)) {
+        return res.status(400).json({ success: false, error: "Invalid Instagram URL or handle format." });
       }
       userUpdates.instagramUrl = ig;
       appUpdates["content_profile.social_links.instagram"] = ig;
@@ -492,6 +458,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
       if (tt.length > 200) {
         return res.status(400).json({ success: false, error: "TikTok URL must not exceed 200 characters." });
       }
+      if (tt && !isValidSocialLink(tt)) {
+        return res.status(400).json({ success: false, error: "Invalid TikTok URL or handle format." });
+      }
       userUpdates.tiktokUrl = tt;
       appUpdates["content_profile.social_links.tiktok"] = tt;
     }
@@ -499,6 +468,9 @@ const updateCreatorProfile = catchAsyncError(async (req, res) => {
       const yt = String(socialLinks.youtube).trim();
       if (yt.length > 200) {
         return res.status(400).json({ success: false, error: "YouTube URL must not exceed 200 characters." });
+      }
+      if (yt && !isValidSocialLink(yt)) {
+        return res.status(400).json({ success: false, error: "Invalid YouTube URL or handle format." });
       }
       userUpdates.youtubeUrl = yt;
       appUpdates["content_profile.social_links.youtube"] = yt;
@@ -1026,6 +998,291 @@ const getCreatorEarnings = catchAsyncError(async (req, res) => {
   });
 });
 
+/**
+ * @desc Get authenticated creator's affiliated Agency or pending partnership invitation
+ * @route GET /creator/agency
+ * @access Private (Authenticated Creator)
+ */
+const getCreatorAgency = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const rel = await CreatorAgencyRelationship.findOne({
+    creator_id: userObjectId,
+    status: { $in: ["active", "pending_creator_consent", "pending_admin_approval"] },
+  })
+    .populate("agency_id")
+    .populate("invited_by", "firstname lastname username email")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!rel || !rel.agency_id) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        hasAgency: false,
+        status: "NONE",
+        rawStatus: "none",
+        agencyName: "",
+        agencyId: "",
+        contractStartDate: "",
+        managerName: "",
+        managerEmail: "",
+        commissionSplitRate: 20,
+      },
+    });
+  }
+
+  const agency = rel.agency_id;
+  const manager = rel.invited_by || agency.main_contact;
+
+  let status = "NONE";
+  if (rel.status === "active") status = "ACTIVE";
+  else if (rel.status === "pending_creator_consent") status = "PENDING_CONSENT";
+  else if (rel.status === "pending_admin_approval") status = "PENDING_ADMIN";
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      hasAgency: true,
+      invitationId: String(rel._id),
+      status,
+      rawStatus: rel.status,
+      agencyId: String(agency._id),
+      agencyName: agency.agency_name || "Partner Agency",
+      contractStartDate: rel.joined_at
+        ? new Date(rel.joined_at).toISOString().split("T")[0]
+        : (rel.createdAt ? new Date(rel.createdAt).toISOString().split("T")[0] : "Recently"),
+      managerName: manager
+        ? `${manager.firstname || ""} ${manager.lastname || ""}`.trim() || manager.name || manager.username
+        : "Agency Manager",
+      managerEmail: manager?.email || agency.main_contact?.email || "agency@frenzone.live",
+      commissionSplitRate: 20,
+      country: agency.country || "United States",
+      website: agency.website || "",
+    },
+  });
+});
+
+/**
+ * @desc Dynamically gathers real stream, referral, compliance, agency, and transaction activities
+ */
+async function buildCreatorActivityFeed(userObjectId, app, referralCode) {
+  const [
+    recentStreams,
+    recentReferrals,
+    recentScans,
+    agencyRel,
+    userActivities,
+  ] = await Promise.all([
+    StreamAnalysis.find({ userid: userObjectId })
+      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt")
+      .sort({ endedAt: -1, createdAt: -1 })
+      .limit(5)
+      .lean(),
+    Referral.find({ referrer_id: userObjectId })
+      .populate("referred_user_id", "username firstname lastname profilePicture")
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean(),
+    ReferralScan.find({ referrer_id: userObjectId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean(),
+    CreatorAgencyRelationship.findOne({ creator_id: userObjectId })
+      .populate("agency_id", "agency_name")
+      .lean(),
+    Activity.find({ $or: [{ userid: userObjectId }, { otheruserid: userObjectId }] })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean(),
+  ]);
+
+  const activityItems = [];
+
+  // 1. Live Streams
+  (recentStreams || []).forEach((stream) => {
+    activityItems.push({
+      id: `stream-${stream._id}`,
+      title: stream.likes > 0
+        ? `Completed Live Stream (${stream.likes.toLocaleString()} likes)`
+        : "Completed Live Stream Session",
+      subtitle: stream.usdEarned > 0
+        ? `$${Number(stream.usdEarned).toFixed(2)} USD generated`
+        : "Session telemetry recorded",
+      timestamp: formatRelativeTime(stream.endedAt || stream.createdAt),
+      rawDate: stream.endedAt || stream.createdAt || new Date(),
+      type: "stream",
+      link: "/creator/performance",
+    });
+    if (stream.giftCoins > 0 || stream.diamondsEarned > 0 || stream.giftsReceived > 0) {
+      activityItems.push({
+        id: `earning-${stream._id}`,
+        title: stream.diamondsEarned > 0
+          ? `Earned ${stream.diamondsEarned.toLocaleString()} Diamonds from Live Gifts`
+          : (stream.giftCoins > 0 ? `Earned ${stream.giftCoins.toLocaleString()} gift coins` : `Received ${stream.giftsReceived} stream gifts`),
+        subtitle: "Audience tips credited to Creator Wallet",
+        timestamp: formatRelativeTime(stream.endedAt || stream.createdAt),
+        rawDate: stream.endedAt || stream.createdAt || new Date(),
+        type: "earning",
+        link: "/creator/earnings",
+      });
+    }
+  });
+
+  // 2. Network Referrals (with real invitee user details!)
+  (recentReferrals || []).forEach((refDoc) => {
+    const referredUser = refDoc.referred_user_id;
+    const displayName = referredUser?.username
+      ? `@${referredUser.username}`
+      : (`${referredUser?.firstname || ""} ${referredUser?.lastname || ""}`.trim() || "New Creator");
+
+    if (refDoc.status === "qualified") {
+      activityItems.push({
+        id: `ref-${refDoc._id}`,
+        title: `Referred Creator ${displayName} Qualified & Active`,
+        subtitle: "10% recurring revenue share active",
+        timestamp: formatRelativeTime(refDoc.qualification_timestamp || refDoc.createdAt),
+        rawDate: refDoc.qualification_timestamp || refDoc.createdAt || new Date(),
+        type: "referral",
+        link: "/creator/referrals",
+      });
+    } else {
+      activityItems.push({
+        id: `ref-${refDoc._id}`,
+        title: `New Creator ${displayName} Joined via Referral`,
+        subtitle: `Referral Code: ${refDoc.referral_code || referralCode || ""}`,
+        timestamp: formatRelativeTime(refDoc.createdAt),
+        rawDate: refDoc.createdAt || new Date(),
+        type: "referral",
+        link: "/creator/referrals",
+      });
+    }
+  });
+
+  // 3. Referral QR Scans
+  if (recentScans && recentScans.length > 0) {
+    activityItems.push({
+      id: `scan-${recentScans[0]._id}`,
+      title: "Referral QR Code Scanned",
+      subtitle: `${recentScans.length} total visitor scans tracked`,
+      timestamp: formatRelativeTime(recentScans[0].createdAt),
+      rawDate: recentScans[0].createdAt || new Date(),
+      type: "referral",
+      link: "/creator/referrals",
+    });
+  }
+
+  // 4. Agency Affiliations
+  if (agencyRel) {
+    const agencyName = agencyRel.agency_id?.agency_name || "Agency";
+    if (agencyRel.status === "active") {
+      activityItems.push({
+        id: `agency-${agencyRel._id}`,
+        title: `Active Representation with ${agencyName}`,
+        subtitle: `${agencyRel.commission_rate || 20}% agency commission split verified`,
+        timestamp: formatRelativeTime(agencyRel.creator_consent_at || agencyRel.updatedAt || agencyRel.createdAt),
+        rawDate: agencyRel.creator_consent_at || agencyRel.updatedAt || agencyRel.createdAt || new Date(),
+        type: "agency",
+        link: "/creator/agency",
+      });
+    } else if (agencyRel.status === "pending_creator_consent") {
+      activityItems.push({
+        id: `agency-${agencyRel._id}`,
+        title: `Agency Representation Offer from ${agencyName}`,
+        subtitle: "Action required: Review contract terms in Agency Portal",
+        timestamp: formatRelativeTime(agencyRel.createdAt),
+        rawDate: agencyRel.createdAt || new Date(),
+        type: "agency",
+        link: "/creator/agency",
+      });
+    }
+  }
+
+  // 5. Creator Program Compliance / Verification
+  if (app) {
+    if (app.status === "approved") {
+      activityItems.push({
+        id: `compliance-${app._id}`,
+        title: "Creator Program Verification Approved",
+        subtitle: "Live broadcasting access & monetization unlocked",
+        timestamp: formatRelativeTime(app.updatedAt || app.createdAt),
+        rawDate: app.updatedAt || app.createdAt || new Date(),
+        type: "compliance",
+        link: "/creator/compliance",
+      });
+    } else if (app.status === "pending") {
+      activityItems.push({
+        id: `compliance-${app._id}`,
+        title: "Creator Program Application Submitted",
+        subtitle: "Compliance review currently in progress",
+        timestamp: formatRelativeTime(app.createdAt),
+        rawDate: app.createdAt || new Date(),
+        type: "compliance",
+        link: "/creator/compliance",
+      });
+    }
+  }
+
+  // 6. Platform Activity collection
+  (userActivities || []).forEach((act) => {
+    activityItems.push({
+      id: `act-${act._id}`,
+      title: act.text || "Account activity notification",
+      subtitle: act.activityType ? `Activity: ${act.activityType}` : "Platform notification",
+      timestamp: formatRelativeTime(act.createdAt),
+      rawDate: act.createdAt || new Date(),
+      type: act.walletNotify ? "earning" : "stream",
+      link: act.walletNotify ? "/creator/earnings" : "/creator",
+    });
+  });
+
+  // Sort chronologically descending
+  activityItems.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+
+  return activityItems.slice(0, 10).map(({ id, title, subtitle, timestamp, type, link }) => ({
+    id,
+    title,
+    subtitle: subtitle || "",
+    timestamp,
+    type,
+    link: link || "/creator",
+  }));
+}
+
+/**
+ * @desc Fetch real-time Stream & Account Activity feed for authenticated creator
+ * @route GET /creator/activities
+ * @access Private (Authenticated Creator)
+ */
+const getCreatorActivities = catchAsyncError(async (req, res) => {
+  const userId = req.userId || req.user?._id;
+  if (!userId) {
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+
+  const [user, app] = await Promise.all([
+    User.findById(userId).select("referralCode app_user_id username"),
+    CreatorApplication.findOne({ user_id: userId }).select("status updatedAt createdAt"),
+  ]);
+
+  if (!user) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+
+  const referralCode = user.referralCode || user.app_user_id || user.username;
+  const activities = await buildCreatorActivityFeed(userId, app, referralCode);
+
+  return res.status(200).json({
+    success: true,
+    activities,
+  });
+});
+
 module.exports = {
   getCreatorDashboard,
   getCreatorPerformance,
@@ -1035,4 +1292,7 @@ module.exports = {
   getCreatorCompliance,
   getCreatorReferrals,
   getCreatorEarnings,
+  getCreatorAgency,
+  getCreatorActivities,
+  buildCreatorActivityFeed,
 };

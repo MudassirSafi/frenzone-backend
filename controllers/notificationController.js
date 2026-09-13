@@ -7,9 +7,11 @@ require("dotenv").config();
 const SCOPES = ['https://www.googleapis.com/auth/firebase.messaging'];
 const serviceAccount = require("../firebaseFrenzoneNew.json");
 
-admin.initializeApp({
+if (!admin.apps.length) {
+  admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
-});
+  });
+}
 
 const createDynamicLink = async (link) => {
   const apiKey = process.env.FIREBASE_WEB_API_KEY; // Get this from your Firebase project settings

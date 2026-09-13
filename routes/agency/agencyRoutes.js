@@ -16,6 +16,14 @@ const {
   respondAgencyInvite,
   getAdminAgencies,
   reviewAgency,
+  searchCreators,
+  getAgencyCommissions,
+  getAgencyReferrals,
+  getAgencyPayoutAccount,
+  updateAgencyPayoutAccount,
+  getAgencyInvoices,
+  downloadAgencyInvoice,
+  getAgencyDisbursements,
 } = require("../../controllers/agency/agencyController");
 
 // ── AGENCY APPLICATION & CREATOR CONSENT APIS ──
@@ -27,6 +35,9 @@ router.get("/profile", requireAuth, requireAgencyAuth, getAgencyProfile);
 router.get("/dashboard", requireAuth, requireAgencyAuth, getAgencyDashboard);
 router.get("/roster", requireAuth, requireAgencyAuth, getAgencyRoster);
 router.get("/invitations", requireAuth, requireAgencyAuth, getAgencyInvitations);
+router.get("/creators/search", requireAuth, requireAgencyAuth, searchCreators);
+router.get("/commissions", requireAuth, requireAgencyAuth, getAgencyCommissions);
+router.get("/referrals", requireAuth, requireAgencyAuth, getAgencyReferrals);
 router.delete(
   "/invitations/:id",
   requireAuth,
@@ -42,6 +53,21 @@ router.post(
   requireAgencyRole(["owner", "manager"]),
   inviteCreator
 );
+
+// ── AGENCY CORPORATE PAYOUT & SETTLEMENT APIS (Treasury Wire Model) ──
+router.get("/payout-account", requireAuth, requireAgencyAuth, getAgencyPayoutAccount);
+router.put(
+  "/payout-account",
+  requireAuth,
+  requireAgencyAuth,
+  requireAgencyRole(["owner", "manager"]),
+  updateAgencyPayoutAccount
+);
+router.get("/payouts/history", requireAuth, requireAgencyAuth, getAgencyDisbursements);
+
+// ── AGENCY INVOICES & BILLING APIS ──
+router.get("/invoices", requireAuth, requireAgencyAuth, getAgencyInvoices);
+router.get("/invoices/:id/download", requireAuth, requireAgencyAuth, downloadAgencyInvoice);
 
 // ── ADMIN PANEL AGENCY APIS ──
 const adminAgencyRouter = express.Router();
