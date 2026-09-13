@@ -305,6 +305,60 @@ const demoLoginUser = catchAsyncError(async (req, res) => {
       }
     }
 
+    if (!user.referralCode) {
+      user.referralCode = "FZDEMO99";
+      await user.save();
+    }
+
+    const existingDemoRefs = await Referral.countDocuments({ referrer_id: user._id });
+    if (existingDemoRefs === 0) {
+      let refUser1 = await User.findOne({ email: "demo.referred1@frenzone.live" });
+      if (!refUser1) {
+        refUser1 = await User.create({
+          firstname: "Sophia",
+          lastname: "Rivers",
+          username: "sophiarivers",
+          email: "demo.referred1@frenzone.live",
+          loginFrom: "WebDemo",
+          isVerified: true,
+          liveAccess: true,
+          profilePicture: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+          onboarding: { active: true },
+        });
+      }
+      let refUser2 = await User.findOne({ email: "demo.referred2@frenzone.live" });
+      if (!refUser2) {
+        refUser2 = await User.create({
+          firstname: "Marcus",
+          lastname: "Chen",
+          username: "marcuslive",
+          email: "demo.referred2@frenzone.live",
+          loginFrom: "WebDemo",
+          isVerified: false,
+          liveAccess: true,
+          profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+          onboarding: { active: true },
+        });
+      }
+
+      await Referral.create([
+        {
+          referrer_id: user._id,
+          referred_user_id: refUser1._id,
+          referral_code: "FZDEMO99",
+          status: "qualified",
+          createdAt: new Date(Date.now() - 5 * 86400000),
+        },
+        {
+          referrer_id: user._id,
+          referred_user_id: refUser2._id,
+          referral_code: "FZDEMO99",
+          status: "registered",
+          createdAt: new Date(Date.now() - 2 * 86400000),
+        },
+      ]);
+    }
+
     let creatorApp = await CreatorApplication.findOne({ user_id: user._id });
     if (!creatorApp) {
       creatorApp = await CreatorApplication.create({

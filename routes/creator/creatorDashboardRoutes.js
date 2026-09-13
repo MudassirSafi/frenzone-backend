@@ -15,6 +15,13 @@ const {
   getCreatorAgency,
   getCreatorActivities,
 } = require("../../controllers/creator/creatorDashboardController");
+const {
+  getCreatorLiveStatus,
+  startCreatorLiveSession,
+  recordCreatorLiveHeartbeat,
+  endCreatorLiveSession,
+  getCreatorLiveSessionDetails,
+} = require("../../controllers/creator/creatorLiveStudioController");
 const { respondAgencyInvite } = require("../../controllers/agency/agencyController");
 
 const upload = multer({
@@ -22,6 +29,11 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+router.get("/live/status", requireAuth, requireCreatorAuth, getCreatorLiveStatus);
+router.post("/live/start", requireAuth, requireCreatorAuth, startCreatorLiveSession);
+router.post("/live/heartbeat", requireAuth, requireCreatorAuth, recordCreatorLiveHeartbeat);
+router.post("/live/end", requireAuth, requireCreatorAuth, endCreatorLiveSession);
+router.get("/live/session/:streamId", requireAuth, requireCreatorAuth, getCreatorLiveSessionDetails);
 router.get("/dashboard", requireAuth, requireCreatorAuth, getCreatorDashboard);
 router.get("/activities", requireAuth, requireCreatorAuth, getCreatorActivities);
 router.get("/earnings", requireAuth, requireCreatorAuth, getCreatorEarnings);
