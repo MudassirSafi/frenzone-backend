@@ -64,15 +64,19 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
   // Parallel bounded queries for optimal throughput
-  const [user, wallet, app, streamAgg, referralStats, recentStreams, trendPeriods] = await Promise.all([
+  const [user, wallet, app, pendingPayoutsAgg, streamAgg, referralStats, recentStreams, trendPeriods] = await Promise.all([
     User.findById(userObjectId)
       .select("username firstname lastname followers rankingPoints isVerified liveAccess referralCode app_user_id profilePicture")
       .lean(),
-    Wallet.findOne({ userid: userObjectId }).select("diamond totalReceivedTips").lean(),
+    Wallet.findOne({ userid: userObjectId }).select("diamonds earnedAmount currentAmount totalReceivedTips").lean(),
     CreatorApplication.findOne({ user_id: userObjectId })
       .select("status legal_agreements createdAt updatedAt")
       .sort({ createdAt: -1 })
       .lean(),
+    Payout.aggregate([
+      { $match: { userId: userObjectId, status: { $in: ["pending", "processing"] } } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]),
     StreamAnalysis.aggregate([
       { $match: { userid: userObjectId } },
       {
@@ -212,8 +216,21 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
   const ref = referralStats[0] || { totalReferred: 0, qualifiedCount: 0 };
   const referralCode = user.referralCode || user.app_user_id || user.username;
   const followersCount = Array.isArray(user.followers) ? user.followers.length : 0;
-  const diamondsBalance = wallet?.diamond || agg.totalDiamonds || 0;
-  const estimatedEarnings = (diamondsBalance * 0.42).toFixed(2);
+
+  // Harmonized Financial Logic: 100 diamonds = $1.00 USD, or settled earnedAmount/currentAmount
+  const diamondsBalance = Number(wallet?.diamonds || 0);
+  const earnedAmount = Number(wallet?.earnedAmount || wallet?.currentAmount || 0);
+  const availableAmount = Math.max(
+    0,
+    diamondsBalance > 0
+      ? diamondsBalance / 100
+      : (earnedAmount > 0 ? earnedAmount : (agg.totalDiamonds ? agg.totalDiamonds / 100 : 0))
+  );
+  const estimatedEarnings = availableAmount.toFixed(2);
+
+  // Authoritative Pending Clearance from Payout collection
+  const pendingAmount = Math.max(0, Number(pendingPayoutsAgg?.[0]?.total || 0));
+  const pendingEarningsFormatted = pendingAmount.toFixed(2);
 
   // Derive rich dynamic activities timeline from actual database events
   const recentActivities = await buildCreatorActivityFeed(userObjectId, app, referralCode);
@@ -236,7 +253,12 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
 
   const liveHoursTarget = 40;
   const targetSeconds = liveHoursTarget * 3600;
-  const contentProgress = Math.min(100, Math.round((totalDurationSeconds / targetSeconds) * 100));
+  // If user has streamed (> 0s), guarantee at least 1% progress credit so short streams don't show flat 0%
+  const rawProgressPct = (totalDurationSeconds / targetSeconds) * 100;
+  const contentProgress = totalDurationSeconds > 0
+    ? Math.min(100, Math.max(1, Math.round(rawProgressPct)))
+    : 0;
+
   const isApproved = app?.status === "approved" || Boolean(user.liveAccess && user.isVerified);
   const complianceStatus = isApproved ? (totalDurationSeconds >= targetSeconds ? "COMPLETED" : "PARTIAL") : "PENDING";
 
@@ -266,7 +288,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
         currency: "USD",
       },
       pendingEarnings: {
-        amount: "0.00",
+        amount: pendingEarningsFormatted,
         currency: "USD",
       },
       totalViewers: followersCount + (agg.totalLikes || 0),
