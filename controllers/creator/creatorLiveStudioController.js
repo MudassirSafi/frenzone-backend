@@ -11,7 +11,7 @@ const { catchAsyncError } = require("../../helpers/catchAsyncError");
 /**
  * Helper to save completed StreamAnalysis upon session finalization
  */
-const saveStreamAnalysisRecord = async (stream) => {
+const saveStreamAnalysisRecord = async (stream, durationSeconds = 0) => {
   if (!stream) return null;
   const host = (stream.broadcasters || []).find(
     b => b.role === "host" || b.userid?.toString() === stream.userid?.toString()
@@ -40,6 +40,7 @@ const saveStreamAnalysisRecord = async (stream) => {
       giftCoins,
       diamondsEarned,
       usdEarned: diamondsEarned,
+      durationSeconds: Math.max(0, Number(durationSeconds || 0)),
       topGifters,
       endedAt: new Date(),
     },
@@ -449,12 +450,10 @@ const endCreatorLiveSession = catchAsyncError(async (req, res) => {
 
   // 3. Compute duration and persist final StreamAnalysis
   const startTime = stream.createdAt || (stream._id && typeof stream._id.getTimestamp === "function" ? stream._id.getTimestamp() : new Date());
-  const durationSeconds = Math.max(
-    1,
-    Math.floor((Date.now() - new Date(startTime).getTime()) / 1000)
-  );
+  const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+  const durationSeconds = Number(req.body.durationSeconds) > 0 ? Number(req.body.durationSeconds) : computedDuration;
 
-  const analysis = await saveStreamAnalysisRecord(stream);
+  const analysis = await saveStreamAnalysisRecord(stream, durationSeconds);
 
   // 4. Clean up Stream document and reset user isLive
   await Stream.findByIdAndDelete(stream._id);

@@ -30,6 +30,22 @@ function formatRelativeTime(date) {
   return new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
+function calcGrowth(current, prior) {
+  const curr = Number(current || 0);
+  const prev = Number(prior || 0);
+  if (prev === 0) {
+    if (curr > 0) return { value: "100%", positive: true };
+    return { value: "0%", positive: true };
+  }
+  const diff = curr - prev;
+  const pct = ((diff / prev) * 100).toFixed(1);
+  const numPct = parseFloat(pct);
+  return {
+    value: `${Math.abs(numPct)}%`,
+    positive: numPct >= 0,
+  };
+}
+
 /**
  * @desc Fetch authoritative Creator Dashboard overview metrics
  * @route GET /creator/dashboard
@@ -43,8 +59,12 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
 
   const userObjectId = new mongoose.Types.ObjectId(userId);
 
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
   // Parallel bounded queries for optimal throughput
-  const [user, wallet, app, streamAgg, referralStats, recentStreams, recentReferrals] = await Promise.all([
+  const [user, wallet, app, streamAgg, referralStats, recentStreams, trendPeriods] = await Promise.all([
     User.findById(userObjectId)
       .select("username firstname lastname followers rankingPoints isVerified liveAccess referralCode app_user_id profilePicture")
       .lean(),
@@ -64,6 +84,25 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
           totalCoins: { $sum: "$giftCoins" },
           totalDiamonds: { $sum: "$diamondsEarned" },
           totalUsd: { $sum: "$usdEarned" },
+          totalDurationSeconds: {
+            $sum: {
+              $cond: [
+                { $gt: ["$durationSeconds", 0] },
+                "$durationSeconds",
+                {
+                  $max: [
+                    0,
+                    {
+                      $divide: [
+                        { $subtract: [{ $ifNull: ["$endedAt", "$createdAt"] }, "$createdAt"] },
+                        1000
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
         },
       },
     ]),
@@ -84,6 +123,73 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       .sort({ endedAt: -1 })
       .limit(5)
       .lean(),
+    StreamAnalysis.aggregate([
+      { $match: { userid: userObjectId, endedAt: { $gte: sixtyDaysAgo } } },
+      {
+        $facet: {
+          currentPeriod: [
+            { $match: { endedAt: { $gte: thirtyDaysAgo } } },
+            {
+              $group: {
+                _id: null,
+                streams: { $sum: 1 },
+                likes: { $sum: "$likes" },
+                diamonds: { $sum: "$diamondsEarned" },
+                seconds: {
+                  $sum: {
+                    $cond: [
+                      { $gt: ["$durationSeconds", 0] },
+                      "$durationSeconds",
+                      {
+                        $max: [
+                          0,
+                          {
+                            $divide: [
+                              { $subtract: [{ $ifNull: ["$endedAt", "$createdAt"] }, "$createdAt"] },
+                              1000
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+              },
+            },
+          ],
+          priorPeriod: [
+            { $match: { endedAt: { $lt: thirtyDaysAgo, $gte: sixtyDaysAgo } } },
+            {
+              $group: {
+                _id: null,
+                streams: { $sum: 1 },
+                likes: { $sum: "$likes" },
+                diamonds: { $sum: "$diamondsEarned" },
+                seconds: {
+                  $sum: {
+                    $cond: [
+                      { $gt: ["$durationSeconds", 0] },
+                      "$durationSeconds",
+                      {
+                        $max: [
+                          0,
+                          {
+                            $divide: [
+                              { $subtract: [{ $ifNull: ["$endedAt", "$createdAt"] }, "$createdAt"] },
+                              1000
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]),
   ]);
 
   if (!user) {
@@ -97,7 +203,11 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
     totalCoins: 0,
     totalDiamonds: 0,
     totalUsd: 0,
+    totalDurationSeconds: 0,
   };
+
+  const curr = trendPeriods?.[0]?.currentPeriod?.[0] || { streams: 0, likes: 0, diamonds: 0, seconds: 0 };
+  const prev = trendPeriods?.[0]?.priorPeriod?.[0] || { streams: 0, likes: 0, diamonds: 0, seconds: 0 };
 
   const ref = referralStats[0] || { totalReferred: 0, qualifiedCount: 0 };
   const referralCode = user.referralCode || user.app_user_id || user.username;
@@ -108,11 +218,34 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
   // Derive rich dynamic activities timeline from actual database events
   const recentActivities = await buildCreatorActivityFeed(userObjectId, app, referralCode);
 
-  const liveHours = Math.round((agg.totalStreams || 0) * 1.5);
+  const totalDurationSeconds = Math.max(0, Math.round(agg.totalDurationSeconds || 0));
+  const liveHoursDecimal = Number((totalDurationSeconds / 3600).toFixed(2));
+
+  let liveDurationFormatted = "0m";
+  if (totalDurationSeconds > 0) {
+    const hours = Math.floor(totalDurationSeconds / 3600);
+    const minutes = Math.floor((totalDurationSeconds % 3600) / 60);
+    if (hours === 0) {
+      liveDurationFormatted = `${Math.max(1, minutes)}m`;
+    } else if (minutes === 0) {
+      liveDurationFormatted = `${hours}h`;
+    } else {
+      liveDurationFormatted = `${hours}h ${minutes}m`;
+    }
+  }
+
   const liveHoursTarget = 40;
-  const contentProgress = Math.min(100, Math.round((liveHours / liveHoursTarget) * 100));
+  const targetSeconds = liveHoursTarget * 3600;
+  const contentProgress = Math.min(100, Math.round((totalDurationSeconds / targetSeconds) * 100));
   const isApproved = app?.status === "approved" || Boolean(user.liveAccess && user.isVerified);
-  const complianceStatus = isApproved ? (liveHours >= liveHoursTarget ? "COMPLETED" : "PARTIAL") : "PENDING";
+  const complianceStatus = isApproved ? (totalDurationSeconds >= targetSeconds ? "COMPLETED" : "PARTIAL") : "PENDING";
+
+  const trends = {
+    liveHours: calcGrowth(curr.seconds, prev.seconds),
+    contentProgress: calcGrowth(curr.streams, prev.streams),
+    earnings: calcGrowth(curr.diamonds, prev.diamonds),
+    viewers: calcGrowth(curr.likes, prev.likes),
+  };
 
   return res.status(200).json({
     success: true,
@@ -122,9 +255,12 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       applicationStatus: app ? app.status : "none",
       isApproved,
       complianceStatus,
-      liveHours,
+      liveHours: liveHoursDecimal,
+      liveDurationSeconds: totalDurationSeconds,
+      liveDurationFormatted,
       liveHoursTarget,
       contentProgress,
+      trends,
       availableEarnings: {
         amount: estimatedEarnings,
         currency: "USD",
@@ -145,6 +281,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
         totalGiftsReceived: agg.totalGifts,
         diamondsEarned: diamondsBalance,
         estimatedEarningsUSD: Number(estimatedEarnings),
+        totalDurationSeconds,
         totalReferred: ref.totalReferred,
         qualifiedReferrals: ref.qualifiedCount,
       },
@@ -186,7 +323,7 @@ const getCreatorPerformance = catchAsyncError(async (req, res) => {
   // Parallel fetch: streams in range + user details for followers count
   const [streams, user] = await Promise.all([
     StreamAnalysis.find(filter)
-      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt")
+      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt durationSeconds")
       .sort({ endedAt: -1 })
       .limit(100)
       .lean(),
@@ -203,12 +340,14 @@ const getCreatorPerformance = catchAsyncError(async (req, res) => {
     const likes = Number(stream.likes || 0);
     const gifts = Number(stream.giftCoins || stream.giftsReceived || 0);
 
-    // Calculate stream duration in hours (if createdAt and endedAt are present, compute diff; min 0.5h, fallback 1.5h)
-    let hours = 1.5;
-    if (stream.createdAt && stream.endedAt) {
+    // Calculate actual stream duration in hours from durationSeconds or createdAt/endedAt diff
+    let hours = 0;
+    if (typeof stream.durationSeconds === "number" && stream.durationSeconds > 0) {
+      hours = Number((stream.durationSeconds / 3600).toFixed(2));
+    } else if (stream.createdAt && stream.endedAt) {
       const diffHrs = (new Date(stream.endedAt).getTime() - new Date(stream.createdAt).getTime()) / (1000 * 60 * 60);
-      if (diffHrs > 0.1 && diffHrs < 24) {
-        hours = Number(diffHrs.toFixed(1));
+      if (diffHrs > 0 && diffHrs < 24) {
+        hours = Number(diffHrs.toFixed(2));
       }
     }
 
