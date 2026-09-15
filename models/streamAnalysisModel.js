@@ -11,6 +11,7 @@ const streamAnalysisSchema = new mongoose.Schema(
     diamondsEarned: { type: Number, default: 0 },
     usdEarned: { type: Number, default: 0 },
     durationSeconds: { type: Number, default: 0, min: 0 },
+    viewers: { type: Number, default: 0, min: 0 },
     topGifters: [{
       userid: { type: mongoose.Schema.Types.ObjectId },
       username: { type: String, default: "" },

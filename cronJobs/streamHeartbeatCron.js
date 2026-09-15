@@ -18,13 +18,20 @@ async function saveCompletedStreamAnalysis(stream) {
   const startTime = stream.createdAt || (stream._id && typeof stream._id.getTimestamp === "function" ? stream._id.getTimestamp() : new Date());
   const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
 
+  const audienceMembers = Array.isArray(stream.members)
+    ? stream.members.filter(m => m && m.toString() !== stream.userid?.toString())
+    : [];
+  const rawLikes = Math.max(Number(stream.likes || 0), Number(stream.likeCount || 0));
+  const viewers = Math.max(audienceMembers.length, rawLikes);
+
   await StreamAnalysis.findOneAndUpdate(
     { streamid: stream._id },
     {
       streamid: stream._id,
       userid: stream.userid,
       clubid: stream.clubid || null,
-      likes: Math.max(Number(stream.likes || 0), Number(stream.likeCount || 0)),
+      likes: rawLikes,
+      viewers,
       giftsReceived: Number(stream.giftCount || 0),
       giftCoins,
       diamondsEarned,

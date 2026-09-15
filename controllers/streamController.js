@@ -48,13 +48,20 @@ const saveCompletedStreamAnalysis = async (stream, explicitDurationSeconds = nul
   const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
   const durationSeconds = Number(explicitDurationSeconds) > 0 ? Number(explicitDurationSeconds) : computedDuration;
 
+  const audienceMembers = Array.isArray(stream.members)
+    ? stream.members.filter(m => m && m.toString() !== stream.userid?.toString())
+    : [];
+  const rawLikes = Math.max(Number(stream.likes || 0), Number(stream.likeCount || 0));
+  const viewers = Math.max(audienceMembers.length, rawLikes);
+
   return StreamAnalysis.findOneAndUpdate(
     { streamid: stream._id },
     {
       streamid: stream._id,
       userid: stream.userid,
       clubid: stream.clubid || null,
-      likes: Math.max(Number(stream.likes || 0), Number(stream.likeCount || 0)),
+      likes: rawLikes,
+      viewers,
       giftsReceived: Number(stream.giftCount || 0),
       giftCoins,
       diamondsEarned,
@@ -206,16 +213,26 @@ const deleteStreamByAdmin = async (req, res) => {
 const deleteStream = async (req, res) => {
   console.log(">>> [LOG VERSION 3] deleteStream triggered");
   try {
-    const streamid = req.body.streamid;
-    const stream = await Stream.findById(streamid);
+    const rawStreamId = req.body?.streamid || req.body?.streamId || req.query?.streamid || req.query?.streamId || req.params?.streamid;
+    let stream = null;
+    if (rawStreamId && mongoose.isValidObjectId(rawStreamId)) {
+      stream = await Stream.findById(rawStreamId);
+    }
+    if (!stream) {
+      const activeUserId = req.userid || req.user?._id || req.body?.userid;
+      if (activeUserId && mongoose.isValidObjectId(activeUserId)) {
+        stream = await Stream.findOne({ userid: activeUserId }).sort({ createdAt: -1 });
+      }
+    }
 
     if (!stream) {
       throw Error("Stream Not Found");
     }
 
+    const streamid = stream._id;
     const userid = stream.userid;
     const user = await User.findById(userid);
-    const members = stream.members;
+    const members = stream.members || [];
 
     for (const member of members) {
       var sockets = global.onlineSockets.get(member.toString());

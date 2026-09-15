@@ -84,6 +84,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
           _id: null,
           totalStreams: { $sum: 1 },
           totalLikes: { $sum: "$likes" },
+          totalViewers: { $sum: { $ifNull: ["$viewers", "$likes"] } },
           totalGifts: { $sum: "$giftsReceived" },
           totalCoins: { $sum: "$giftCoins" },
           totalDiamonds: { $sum: "$diamondsEarned" },
@@ -123,9 +124,9 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
       },
     ]),
     StreamAnalysis.find({ userid: userObjectId })
-      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt")
+      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt durationSeconds")
       .sort({ endedAt: -1 })
-      .limit(5)
+      .limit(10)
       .lean(),
     StreamAnalysis.aggregate([
       { $match: { userid: userObjectId, endedAt: { $gte: sixtyDaysAgo } } },
@@ -203,6 +204,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
   const agg = streamAgg[0] || {
     totalStreams: 0,
     totalLikes: 0,
+    totalViewers: 0,
     totalGifts: 0,
     totalCoins: 0,
     totalDiamonds: 0,
@@ -291,7 +293,7 @@ const getCreatorDashboard = catchAsyncError(async (req, res) => {
         amount: pendingEarningsFormatted,
         currency: "USD",
       },
-      totalViewers: followersCount + (agg.totalLikes || 0),
+      totalViewers: Math.max(0, Number(followersCount || 0) + Number(agg.totalViewers || agg.totalLikes || 0)),
       referralCode,
       referralLink: referralCode ? buildCanonicalReferralUrl(referralCode, req) : "",
       recentActivities,
@@ -1241,9 +1243,9 @@ async function buildCreatorActivityFeed(userObjectId, app, referralCode) {
     userActivities,
   ] = await Promise.all([
     StreamAnalysis.find({ userid: userObjectId })
-      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt")
+      .select("likes giftsReceived giftCoins diamondsEarned usdEarned endedAt createdAt durationSeconds")
       .sort({ endedAt: -1, createdAt: -1 })
-      .limit(5)
+      .limit(15)
       .lean(),
     Referral.find({ referrer_id: userObjectId })
       .populate("referred_user_id", "username firstname lastname profilePicture")
@@ -1267,14 +1269,39 @@ async function buildCreatorActivityFeed(userObjectId, app, referralCode) {
 
   // 1. Live Streams
   (recentStreams || []).forEach((stream) => {
+    const sec = Number(stream.durationSeconds || 0);
+    let durationFormatted = "";
+    if (sec > 0) {
+      const mins = Math.floor(sec / 60);
+      const remSec = sec % 60;
+      if (mins === 0) {
+        durationFormatted = `${remSec}s`;
+      } else if (remSec === 0) {
+        durationFormatted = `${mins}m`;
+      } else {
+        durationFormatted = `${mins}m ${remSec}s`;
+      }
+    } else {
+      durationFormatted = "< 1m";
+    }
+
+    const durationBadge = ` • ${durationFormatted}`;
+    const subtitleParts = [];
+    subtitleParts.push(`${durationFormatted} streamed`);
+    if (stream.usdEarned > 0) {
+      subtitleParts.push(`$${Number(stream.usdEarned).toFixed(2)} USD generated`);
+    } else if (stream.diamondsEarned > 0) {
+      subtitleParts.push(`${stream.diamondsEarned} diamonds`);
+    } else {
+      subtitleParts.push("Verified session");
+    }
+
     activityItems.push({
       id: `stream-${stream._id}`,
       title: stream.likes > 0
-        ? `Completed Live Stream (${stream.likes.toLocaleString()} likes)`
-        : "Completed Live Stream Session",
-      subtitle: stream.usdEarned > 0
-        ? `$${Number(stream.usdEarned).toFixed(2)} USD generated`
-        : "Session telemetry recorded",
+        ? `Completed Live Stream (${stream.likes.toLocaleString()} likes${durationBadge})`
+        : `Completed Live Stream${durationBadge}`,
+      subtitle: subtitleParts.join(" • "),
       timestamp: formatRelativeTime(stream.endedAt || stream.createdAt),
       rawDate: stream.endedAt || stream.createdAt || new Date(),
       type: "stream",
