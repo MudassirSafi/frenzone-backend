@@ -15,6 +15,9 @@ async function saveCompletedStreamAnalysis(stream) {
     .sort((a, b) => Number(b.coins || 0) - Number(a.coins || 0))
     .slice(0, 3);
 
+  const startTime = stream.createdAt || (stream._id && typeof stream._id.getTimestamp === "function" ? stream._id.getTimestamp() : new Date());
+  const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+
   await StreamAnalysis.findOneAndUpdate(
     { streamid: stream._id },
     {
@@ -26,6 +29,7 @@ async function saveCompletedStreamAnalysis(stream) {
       giftCoins,
       diamondsEarned,
       usdEarned: diamondsEarned,
+      durationSeconds: computedDuration,
       topGifters,
       endedAt: new Date(),
     },

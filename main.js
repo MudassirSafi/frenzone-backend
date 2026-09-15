@@ -48,7 +48,7 @@ const {
   isConversationMuted,
 } = require("./services/privacyAccessService");
 
-async function saveCompletedStreamAnalysis(stream) {
+async function saveCompletedStreamAnalysis(stream, explicitDurationSeconds = null) {
   if (!stream) return;
   const host = (stream.broadcasters || []).find(
     broadcaster => broadcaster.role === "host" ||
@@ -56,6 +56,10 @@ async function saveCompletedStreamAnalysis(stream) {
   );
   const giftCoins = Number(stream.giftCoins || host?.earnings || 0);
   const diamondsEarned = giftCoins * 0.42;
+  const startTime = stream.createdAt || (stream._id && typeof stream._id.getTimestamp === "function" ? stream._id.getTimestamp() : new Date());
+  const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+  const durationSeconds = Number(explicitDurationSeconds) > 0 ? Number(explicitDurationSeconds) : computedDuration;
+
   await StreamAnalysis.findOneAndUpdate(
     { streamid: stream._id },
     {
@@ -67,6 +71,7 @@ async function saveCompletedStreamAnalysis(stream) {
       giftCoins,
       diamondsEarned,
       usdEarned: diamondsEarned,
+      durationSeconds,
       topGifters: [...(stream.gifters || [])]
         .sort((a, b) => Number(b.coins || 0) - Number(a.coins || 0))
         .slice(0, 3),

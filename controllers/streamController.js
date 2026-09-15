@@ -25,7 +25,7 @@ const getLiveNotificationRichContent = (imageUrl) => ({
   actionLabel: "Join Now",
 });
 
-const saveCompletedStreamAnalysis = async (stream) => {
+const saveCompletedStreamAnalysis = async (stream, explicitDurationSeconds = null) => {
   if (!stream) return null;
   const host = (stream.broadcasters || []).find(
     broadcaster => broadcaster.role === "host" ||
@@ -44,6 +44,10 @@ const saveCompletedStreamAnalysis = async (stream) => {
       coins: Number(gifter.coins || 0),
     }));
 
+  const startTime = stream.createdAt || (stream._id && typeof stream._id.getTimestamp === "function" ? stream._id.getTimestamp() : new Date());
+  const computedDuration = Math.max(1, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+  const durationSeconds = Number(explicitDurationSeconds) > 0 ? Number(explicitDurationSeconds) : computedDuration;
+
   return StreamAnalysis.findOneAndUpdate(
     { streamid: stream._id },
     {
@@ -55,6 +59,7 @@ const saveCompletedStreamAnalysis = async (stream) => {
       giftCoins,
       diamondsEarned,
       usdEarned: diamondsEarned,
+      durationSeconds,
       topGifters,
       endedAt: new Date(),
     },
@@ -260,7 +265,7 @@ const deleteStream = async (req, res) => {
       }
     });
 
-    await saveCompletedStreamAnalysis(stream);
+    await saveCompletedStreamAnalysis(stream, req.body?.durationSeconds || req.body?.duration);
     await Stream.findByIdAndDelete(streamid);
 
     await user.updateOne({
